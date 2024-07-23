@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MusicApplicationAPI.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MusicApplicationAPI.Models.DbModels
 {
@@ -23,9 +24,11 @@ namespace MusicApplicationAPI.Models.DbModels
         public RoleType Role { get; set; } // Admin, Normal User, Premium User
 
         [Required]
+        [JsonIgnore]
         public string PasswordHash { get; set; }
 
         [Required]
+        [JsonIgnore]
         public string PasswordHashKey { get; set; }
 
         [Required]
