@@ -8,7 +8,7 @@ using MusicApplicationAPI.Models.DbModels;
 
 namespace MusicApplicationAPI.Repositories
 {
-    public class UserRepository : IRepository<int, User>
+    public class UserRepository : IRepository<int, User>, IUserRepository
     {
         #region Fields
         private readonly MusicManagementContext _context;
@@ -80,6 +80,16 @@ namespace MusicApplicationAPI.Repositories
             return user == null
             ?
                     throw new NoSuchUserExistException($"User with Id {userId} doesn't exist!")
+                    :
+                    user;
+        }
+
+        public async Task<User> GetUserByEmail(string email)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return user == null
+            ?
+                    throw new NoSuchUserExistException($"User with email {email} doesn't exist!")
                     :
                     user;
         }
