@@ -25,11 +25,11 @@ namespace MusicApplicationAPI.Models.DbModels
 
         [Required]
         [JsonIgnore]
-        public string PasswordHash { get; set; }
+        public byte[] PasswordHash { get; set; }
 
         [Required]
         [JsonIgnore]
-        public string PasswordHashKey { get; set; }
+        public byte[] PasswordHashKey { get; set; }
 
         [Required]
         public DateTime DOB { get; set; }

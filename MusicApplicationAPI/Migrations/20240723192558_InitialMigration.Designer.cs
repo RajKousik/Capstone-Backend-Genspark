@@ -12,7 +12,7 @@ using MusicApplicationAPI.Contexts;
 namespace MusicApplicationAPI.Migrations
 {
     [DbContext(typeof(MusicManagementContext))]
-    [Migration("20240723151238_InitialMigration")]
+    [Migration("20240723192558_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -240,13 +240,13 @@ namespace MusicApplicationAPI.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<byte[]>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("PasswordHashKey")
+                    b.Property<byte[]>("PasswordHashKey")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
