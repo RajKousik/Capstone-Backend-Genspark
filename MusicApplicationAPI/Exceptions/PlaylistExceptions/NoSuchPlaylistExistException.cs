@@ -1,15 +1,15 @@
 ﻿namespace MusicApplicationAPI.Exceptions.PlaylistExceptions
 {
     [Serializable]
-    public class NoSuchPlaylistException : Exception
+    public class NoSuchPlaylistExistException : Exception
     {
         private string msg;
-        public NoSuchPlaylistException()
+        public NoSuchPlaylistExistException()
         {
             msg = "The specified playlist does not exist";
         }
 
-        public NoSuchPlaylistException(string message) : base(message)
+        public NoSuchPlaylistExistException(string message) : base(message)
         {
             msg = message;
         }

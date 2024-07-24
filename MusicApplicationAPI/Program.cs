@@ -19,6 +19,7 @@ using WatchDog;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Services.SongService;
 using MusicApplicationAPI.Services;
+using MusicApplicationAPI.Services.FavoriteService;
 
 namespace MusicApplicationAPI
 {
@@ -81,8 +82,8 @@ namespace MusicApplicationAPI
             builder.Services.AddScoped<IPlaylistRepository, PlaylistRepository>();
             builder.Services.AddScoped<IPlaylistSongRepository, PlaylistSongRepository>();
             builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
-            builder.Services.AddScoped<IRepository<int, Album>, AlbumRepository>();
-            builder.Services.AddScoped<IRepository<int, Favorite>, FavoriteRepository>();
+            builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
+            builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
             builder.Services.AddScoped<IRepository<int, Rating>, RatingRepository>();
             #endregion
 
@@ -103,6 +104,7 @@ namespace MusicApplicationAPI
             builder.Services.AddScoped<IPlaylistSongService, PlaylistSongService>();
             builder.Services.AddScoped<IArtistService, ArtistService>();
             builder.Services.AddScoped<IAlbumService, AlbumService>();
+            builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 
             #endregion
 

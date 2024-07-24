@@ -5,7 +5,6 @@ using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.DTOs.SongDTO;
 using MusicApplicationAPI.Exceptions.SongExceptions;
 using MusicApplicationAPI.Models.Enums;
-using MusicApplicationAPI.Repositories;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Exceptions.AlbumExceptions;
 
