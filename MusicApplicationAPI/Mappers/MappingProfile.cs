@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MusicApplicationAPI.Models.DbModels;
+using MusicApplicationAPI.Models.DTOs.ArtistDTO;
 using MusicApplicationAPI.Models.DTOs.PlaylistDTO;
 using MusicApplicationAPI.Models.DTOs.PlaylistSongDTO;
 using MusicApplicationAPI.Models.DTOs.SongDTO;
@@ -60,7 +61,22 @@ namespace MusicApplicationAPI.Mappers
 
             #endregion
 
+            #region Artist
 
+            CreateMap<Artist, ArtistAddDTO>().ReverseMap();
+            CreateMap<Artist, ArtistReturnDTO>().ReverseMap();
+            CreateMap<Artist, ArtistUpdateDTO>().ReverseMap();
+
+
+            CreateMap<ArtistAddDTO, ArtistReturnDTO>().ReverseMap();
+            CreateMap<ArtistAddDTO, ArtistUpdateDTO>().ReverseMap();
+
+            CreateMap<ArtistReturnDTO, ArtistUpdateDTO>().ReverseMap();
+
+
+
+
+            #endregion
         }
     }
 }

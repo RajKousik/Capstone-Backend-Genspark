@@ -5,6 +5,9 @@ using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.DTOs.SongDTO;
 using MusicApplicationAPI.Exceptions.SongExceptions;
 using MusicApplicationAPI.Models.Enums;
+using MusicApplicationAPI.Repositories;
+using MusicApplicationAPI.Exceptions.ArtistExceptions;
+using MusicApplicationAPI.Exceptions.AlbumExceptions;
 
 namespace MusicApplicationAPI.Services.SongService
 {
@@ -15,14 +18,16 @@ namespace MusicApplicationAPI.Services.SongService
     {
         #region Fields
         private readonly ISongRepository _songRepository;
+        private readonly IArtistRepository _artistRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<SongService> _logger;
         #endregion
 
         #region Constructor
-        public SongService(ISongRepository songRepository, IMapper mapper, ILogger<SongService> logger)
+        public SongService(ISongRepository songRepository, IMapper mapper, ILogger<SongService> logger, IArtistRepository artistRepository)
         {
             _songRepository = songRepository;
+            _artistRepository = artistRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -30,18 +35,57 @@ namespace MusicApplicationAPI.Services.SongService
 
         #region Public Methods
 
+        /// <summary>
+        /// Adds a new song to the system.
+        /// </summary>
+        /// <param name="songAddDTO">The song data to add.</param>
+        /// <returns>The added song as a DTO.</returns>
+        /// <exception cref="NoSuchArtistException">Thrown when the specified artist does not exist.</exception>
+        /// <exception cref="NoSuchAlbumException">Thrown when the specified album does not exist.</exception>
+        /// <exception cref="UnableToAddSongException">Thrown when the song cannot be added.</exception>
         public async Task<SongReturnDTO> AddSong(SongAddDTO songAddDTO)
         {
             try
             {
+                // Check if the artist exists
+                var artist = await _artistRepository.GetById(songAddDTO.ArtistId);
+                if (artist == null)
+                {
+                    throw new NoSuchArtistExistException($"Artist with ID {songAddDTO.ArtistId} does not exist.");
+                }
+
+                // If album ID is provided, check if the album exists
+                if (songAddDTO.AlbumId.HasValue)
+                {
+                    //var album = await _albumRepository.GetById(songAddDTO.AlbumId.Value);
+                    Album album = null;
+                    if (album == null)
+                    {
+                        throw new NoSuchAlbumExistException($"Album with ID {songAddDTO.AlbumId.Value} does not exist.");
+                    }
+                }
+
+                // Map DTO to entity and set the release date
                 var song = _mapper.Map<Song>(songAddDTO);
                 song.ReleaseDate = DateTime.Now;
+
+                // Add the song to the repository
                 var addedSong = await _songRepository.Add(song);
                 return _mapper.Map<SongReturnDTO>(addedSong);
             }
+            catch (NoSuchArtistExistException ex)
+            {
+                _logger.LogError(ex, $"Artist with ID {songAddDTO.ArtistId} not found.");
+                throw;
+            }
+            catch (NoSuchAlbumExistException ex)
+            {
+                _logger.LogError(ex, $"Album with ID {songAddDTO.AlbumId} not found.");
+                throw;
+            }
             catch (UnableToAddSongException ex)
             {
-                _logger.LogError(ex, "Unable to add a new song.");
+                _logger.LogError($"Unable to add the song. {ex}");
                 throw;
             }
             catch (Exception ex)
@@ -51,11 +95,15 @@ namespace MusicApplicationAPI.Services.SongService
             }
         }
 
+
         public async Task<SongReturnDTO> UpdateSong(int songId, SongUpdateDTO songUpdateDTO)
         {
             try
             {
                 var song = await _songRepository.GetById(songId);
+
+                await _artistRepository.GetById(songUpdateDTO.ArtistId);
+                //await _albumRepository.GetById(songUpdateDTO.AlbumId);
 
                 song.Title = songUpdateDTO.Title;
                 song.Genre = songUpdateDTO.Genre;
@@ -68,6 +116,16 @@ namespace MusicApplicationAPI.Services.SongService
             catch (NoSuchSongExistException ex)
             {
                 _logger.LogError(ex, $"Song not found. {ex}");
+                throw;
+            }
+            catch (NoSuchArtistExistException ex)
+            {
+                _logger.LogError(ex, $"Artist with ID {songUpdateDTO.ArtistId} not found.");
+                throw;
+            }
+            catch (NoSuchAlbumExistException ex)
+            {
+                _logger.LogError(ex, $"Album with ID {songUpdateDTO.AlbumId} not found.");
                 throw;
             }
             catch (UnableToUpdateSongException ex)

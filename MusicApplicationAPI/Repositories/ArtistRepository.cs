@@ -4,11 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using MusicApplicationAPI.Contexts;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Interfaces.Repository;
+using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DbModels;
 
 namespace MusicApplicationAPI.Repositories
 {
-    public class ArtistRepository : IRepository<int, Artist>
+    public class ArtistRepository : IArtistRepository
     {
         #region Fields
         private readonly MusicManagementContext _context;
