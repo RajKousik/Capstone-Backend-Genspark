@@ -14,7 +14,6 @@ using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Repositories;
 using MusicApplicationAPI.Services.TokenService;
 using MusicApplicationAPI.Services.UserService;
-using System.Diagnostics;
 using System.Text;
 using WatchDog;
 using MusicApplicationAPI.Interfaces.Service;
@@ -80,8 +79,8 @@ namespace MusicApplicationAPI
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ISongRepository, SongRepository>();
             builder.Services.AddScoped<IPlaylistRepository, PlaylistRepository>();
-            builder.Services.AddScoped<IRepository<int, PlaylistSong>, PlaylistSongRepository>();
-            builder.Services.AddScoped<IRepository<int, Artist>, ArtistRepository>();
+            builder.Services.AddScoped<IPlaylistSongRepository, PlaylistSongRepository>();
+            builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
             builder.Services.AddScoped<IRepository<int, Album>, AlbumRepository>();
             builder.Services.AddScoped<IRepository<int, Favorite>, FavoriteRepository>();
             builder.Services.AddScoped<IRepository<int, Rating>, RatingRepository>();
@@ -101,6 +100,8 @@ namespace MusicApplicationAPI
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ISongService, SongService>();
             builder.Services.AddScoped<IPlaylistService, PlaylistService>();
+            builder.Services.AddScoped<IPlaylistSongService, PlaylistSongService>();
+            builder.Services.AddScoped<IArtistService, ArtistService>();
 
             #endregion
 

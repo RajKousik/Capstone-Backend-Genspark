@@ -8,7 +8,7 @@ using MusicApplicationAPI.Models.DbModels;
 
 namespace MusicApplicationAPI.Repositories
 {
-    public class PlaylistSongRepository : IRepository<int, PlaylistSong>
+    public class PlaylistSongRepository : IPlaylistSongRepository
     {
         #region Fields
         private readonly MusicManagementContext _context;
@@ -78,9 +78,14 @@ namespace MusicApplicationAPI.Repositories
             var playlistSong = await _context.PlaylistSongs.FirstOrDefaultAsync(ps => ps.PlaylistSongId == playlistSongId);
             return playlistSong == null
             ?
-                    throw new NoSuchPlaylistSongException($"PlaylistSong with Id {playlistSongId} doesn't exist!")
+                    throw new NoSuchPlaylistSongExistException($"PlaylistSong with Id {playlistSongId} doesn't exist!")
                     :
                     playlistSong;
+        }
+
+        public async Task<IEnumerable<PlaylistSong>> GetPlaylistSongsByPlaylistId(int playlistId)
+        {
+            return (await _context.PlaylistSongs.ToListAsync()).Where(ps => ps.PlaylistId == playlistId);
         }
 
         /// <summary>
