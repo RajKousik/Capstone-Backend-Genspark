@@ -95,10 +95,8 @@ namespace MusicApplicationAPI
             #region Services
 
             builder.Services.AddScoped<ITokenService, TokenService>();
-
             builder.Services.AddScoped<IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO>, UserAuthService>();
             builder.Services.AddScoped<IAuthLoginService<UserLoginReturnDTO, UserLoginDTO>, UserAuthService>();
-
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ISongService, SongService>();
             builder.Services.AddScoped<IPlaylistService, PlaylistService>();
@@ -155,8 +153,10 @@ namespace MusicApplicationAPI
             });
             #endregion
 
+            #region Build Phase
             var app = builder.Build();
-            
+            #endregion
+
             #region Swagger Configurations
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

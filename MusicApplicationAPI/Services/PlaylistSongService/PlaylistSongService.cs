@@ -2,35 +2,52 @@
 using MusicApplicationAPI.Exceptions.PlaylistExceptions;
 using MusicApplicationAPI.Exceptions.PlaylistSongExceptions;
 using MusicApplicationAPI.Exceptions.SongExceptions;
+using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.DTOs.PlaylistSongDTO;
 using MusicApplicationAPI.Models.DTOs.SongDTO;
+using MusicApplicationAPI.Models.Enums;
+using MusicApplicationAPI.Repositories;
+using System.Data;
 
 namespace MusicApplicationAPI.Services
 {
     public class PlaylistSongService : IPlaylistSongService
     {
+        #region Private Fields
         private readonly IPlaylistRepository _playlistRepository;
         private readonly ISongRepository _songRepository;
         private readonly IPlaylistSongRepository _playlistSongRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<PlaylistSongService> _logger;
+        private readonly IConfiguration _configuration;
+
+        #endregion
+
+        #region Constructor
         public PlaylistSongService(
             IPlaylistRepository playlistRepository,
             ISongRepository songRepository,
             IPlaylistSongRepository playlistSongRepository,
             IMapper mapper,
-            ILogger<PlaylistSongService> logger)
+            ILogger<PlaylistSongService> logger,
+            IConfiguration configuration,
+            IUserRepository userRepository)
         {
             _playlistRepository = playlistRepository;
             _songRepository = songRepository;
             _playlistSongRepository = playlistSongRepository;
             _mapper = mapper;
             _logger = logger;
+            _configuration = configuration;
+            _userRepository = userRepository;
         }
+        #endregion
 
+        #region Public Methods
         /// <summary>
         /// Adds a song to a playlist.
         /// </summary>
@@ -44,15 +61,19 @@ namespace MusicApplicationAPI.Services
             try
             {
                 var playlist = await _playlistRepository.GetById(playlistSongDTO.PlaylistId);
+                if (playlist == null)
+                    throw new NoSuchPlaylistExistException("Playlist not found.");
 
                 var song = await _songRepository.GetById(playlistSongDTO.SongId);
+                if (song == null)
+                    throw new NoSuchSongExistException("Song not found.");
+
+                if (await HasReachedSongLimitForPlaylist(playlist.PlaylistId, playlist.UserId))
+                    throw new UnableToAddPlaylistSongException("The playlist has reached the maximum number of songs.");
 
                 var playlistSong = _mapper.Map<PlaylistSong>(playlistSongDTO);
-
                 var addedPlaylistSong = await _playlistSongRepository.Add(playlistSong);
-
                 return _mapper.Map<PlaylistSongReturnDTO>(addedPlaylistSong);
-
             }
             catch (NoSuchPlaylistExistException ex)
             {
@@ -66,7 +87,7 @@ namespace MusicApplicationAPI.Services
             }
             catch (UnableToAddPlaylistSongException ex)
             {
-                _logger.LogError(ex, "Song not found.");
+                _logger.LogError(ex, "Unable to add song to playlist.");
                 throw;
             }
             catch (Exception ex)
@@ -256,5 +277,37 @@ namespace MusicApplicationAPI.Services
                 throw;
             }
         }
+
+        #endregion
+
+        #region Private Methods
+        private async Task<bool> HasReachedSongLimitForPlaylist(int playlistId, int userId)
+        {
+            // Fetch user to check the role
+            var user = await _userRepository.GetById(userId);
+            if (user == null)
+            {
+                _logger.LogError($"User with ID {userId} not found.");
+                throw new NoSuchUserExistException("User not found.");
+            }
+
+            // Check if the user is a normal user
+            if (user.Role == RoleType.NormalUser)
+            {
+                int maxSongs = _configuration.GetValue<int>("PlaylistSettings:MaxSongsPerPlaylistForNormalUser");
+                var playlistSongs = await _playlistSongRepository.GetPlaylistSongsByPlaylistId(playlistId);
+
+                if (playlistSongs.Count() >= maxSongs)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        #endregion
     }
+
 }
+

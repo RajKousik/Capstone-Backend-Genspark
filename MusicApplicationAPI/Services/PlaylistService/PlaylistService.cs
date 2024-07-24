@@ -4,9 +4,9 @@ using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DbModels;
+using MusicApplicationAPI.Models.Enums;
 using MusicApplicationAPI.Models.DTOs.PlaylistDTO;
-using MusicApplicationAPI.Models.DTOs.SongDTO;
-using MusicApplicationAPI.Repositories;
+using System.Data;
 
 namespace MusicApplicationAPI.Services
 {
@@ -17,15 +17,17 @@ namespace MusicApplicationAPI.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<PlaylistService> _logger;
+        private readonly IConfiguration _configuration;
         #endregion
 
         #region Constructor
-        public PlaylistService(IPlaylistRepository playlistRepository, IMapper mapper, ILogger<PlaylistService> logger, IUserRepository userRepository)
+        public PlaylistService(IPlaylistRepository playlistRepository, IMapper mapper, ILogger<PlaylistService> logger, IUserRepository userRepository, IConfiguration configuration)
         {
             _playlistRepository = playlistRepository;
             _mapper = mapper;
             _logger = logger;
             _userRepository = userRepository;
+            _configuration = configuration;
         }
         #endregion
 
@@ -36,17 +38,37 @@ namespace MusicApplicationAPI.Services
         /// </summary>
         /// <param name="playlistCreateDTO">The playlist data to be added.</param>
         /// <returns>The added playlist data.</returns>
+        /// <exception cref="MaximumPlaylistsReachedException">Thrown when a normal user has reached the maximum number of playlists.</exception>
+        /// <exception cref="UserNotFoundException">Thrown when the user is not found.</exception>
         public async Task<PlaylistReturnDTO> AddPlaylist(PlaylistAddDTO playlistCreateDTO)
         {
             try
             {
+                // Fetch the user to check their role and the number of playlists they have
+                var user = await _userRepository.GetById(playlistCreateDTO.UserId);
+                if (user == null)
+                {
+                    throw new NoSuchUserExistException($"User with ID {playlistCreateDTO.UserId} not found.");
+                }
+
+                // Check if the user has reached the maximum number of playlists if they are a normal user
+                if (user.Role == RoleType.NormalUser && await HasReachedPlaylistLimit(user.UserId))
+                {
+                    throw new MaximumPlaylistsReachedException("Normal user has reached the maximum number of playlists.");
+                }
+
                 var playlist = _mapper.Map<Playlist>(playlistCreateDTO);
                 var addedPlaylist = await _playlistRepository.Add(playlist);
                 return _mapper.Map<PlaylistReturnDTO>(addedPlaylist);
             }
-            catch (UnableToAddPlaylistException ex)
+            catch (NoSuchUserExistException ex)
             {
-                _logger.LogError(ex, "Error adding playlist.");
+                _logger.LogError(ex, "User not found.");
+                throw;
+            }
+            catch (MaximumPlaylistsReachedException ex)
+            {
+                _logger.LogError(ex, "Maximum number of playlists reached for user.");
                 throw;
             }
             catch (Exception ex)
@@ -248,6 +270,22 @@ namespace MusicApplicationAPI.Services
             }
         }
 
+        #endregion
+
+
+        #region Private Methods
+        /// <summary>
+        /// Checks if a user has reached the maximum number of playlists for normal users.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <returns>True if the user has reached the maximum limit; otherwise, false.</returns>
+        private async Task<bool> HasReachedPlaylistLimit(int userId)
+        {
+
+            int maxPlaylists = _configuration.GetValue<int>("PlaylistSettings:MaxPlaylistsPerNormalUser");
+            var userPlaylists = await _playlistRepository.GetPlaylistsByUserId(userId);
+            return userPlaylists.Count() >= maxPlaylists;
+        }
         #endregion
     }
 }
