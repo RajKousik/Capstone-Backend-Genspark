@@ -71,7 +71,7 @@ namespace MusicApplicationAPI.Services
                 var updatedPlaylist = await _playlistRepository.Update(playlist);
                 return _mapper.Map<PlaylistReturnDTO>(updatedPlaylist);
             }
-            catch (NoSuchPlaylistException ex)
+            catch (NoSuchPlaylistExistException ex)
             {
                 _logger.LogError(ex, "Playlist not found.");
                 throw;
@@ -100,10 +100,10 @@ namespace MusicApplicationAPI.Services
                 var playlist = await _playlistRepository.GetById(playlistId);
                 return _mapper.Map<PlaylistReturnDTO>(playlist);
             }
-            catch (NoSuchPlaylistException ex)
+            catch (NoSuchPlaylistExistException ex)
             {
                 _logger.LogError(ex, "Playlist not found.");
-                throw;
+                throw;  
             }
             catch (Exception ex)
             {
@@ -151,7 +151,7 @@ namespace MusicApplicationAPI.Services
                 var deletedPlaylist = await _playlistRepository.Delete(playlistId);
                 return _mapper.Map<PlaylistReturnDTO>(deletedPlaylist);
             }
-            catch (NoSuchPlaylistException ex)
+            catch (NoSuchPlaylistExistException ex)
             {
                 _logger.LogError(ex, "Playlist not found.");
                 throw;

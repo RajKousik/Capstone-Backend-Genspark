@@ -54,7 +54,7 @@ namespace MusicApplicationAPI.Services
                 return _mapper.Map<PlaylistSongReturnDTO>(addedPlaylistSong);
 
             }
-            catch (NoSuchPlaylistException ex)
+            catch (NoSuchPlaylistExistException ex)
             {
                 _logger.LogError(ex, "Playlist not found.");
                 throw;
@@ -104,7 +104,7 @@ namespace MusicApplicationAPI.Services
 
                 return _mapper.Map<PlaylistSongReturnDTO>(removedPlayListSong);
             }
-            catch (NoSuchPlaylistException ex)
+            catch (NoSuchPlaylistExistException ex)
             {
                 _logger.LogError(ex, "Playlist not found.");
                 throw;
@@ -145,7 +145,7 @@ namespace MusicApplicationAPI.Services
             {
                 var playlist = await _playlistRepository.GetById(playlistId);
                 if (playlist == null)
-                    throw new NoSuchPlaylistException("Playlist not found.");
+                    throw new NoSuchPlaylistExistException("Playlist not found.");
 
                 var playlistSongs = (await _playlistSongRepository.GetPlaylistSongsByPlaylistId(playlistId)).ToList();
                 if (playlistSongs.Count == 0)
@@ -160,7 +160,7 @@ namespace MusicApplicationAPI.Services
 
                 return _mapper.Map<IEnumerable<SongReturnDTO>>(songs);
             }
-            catch (NoSuchPlaylistException ex)
+            catch (NoSuchPlaylistExistException ex)
             {
                 _logger.LogError(ex, "Playlist not found.");
                 throw;
@@ -192,7 +192,7 @@ namespace MusicApplicationAPI.Services
                 // Check if the playlist exists
                 var playlist = await _playlistRepository.GetById(playlistId);
                 if (playlist == null)
-                    throw new NoSuchPlaylistException("Playlist not found.");
+                    throw new NoSuchPlaylistExistException("Playlist not found.");
 
                 // Get all songs in the playlist
                 var playlistSongs = (await _playlistSongRepository.GetPlaylistSongsByPlaylistId(playlistId)).ToList();
@@ -205,7 +205,7 @@ namespace MusicApplicationAPI.Services
                     await _playlistSongRepository.Delete(playlistSong.PlaylistSongId);
                 }
             }
-            catch (NoSuchPlaylistException ex)
+            catch (NoSuchPlaylistExistException ex)
             {
                 _logger.LogError(ex, "Playlist not found.");
                 throw;
@@ -241,11 +241,11 @@ namespace MusicApplicationAPI.Services
             {
                 var playlist = await _playlistRepository.GetById(playlistId);
                 if (playlist == null)
-                    throw new NoSuchPlaylistException("Playlist not found.");
+                    throw new NoSuchPlaylistExistException("Playlist not found.");
 
                 return (await _playlistSongRepository.GetPlaylistSongsByPlaylistId(playlistId)).ToList().Count();
             }
-            catch (NoSuchPlaylistException ex)
+            catch (NoSuchPlaylistExistException ex)
             {
                 _logger.LogError(ex, "Playlist not found.");
                 throw;
