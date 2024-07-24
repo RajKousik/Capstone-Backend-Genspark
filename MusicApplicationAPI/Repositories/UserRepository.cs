@@ -8,7 +8,7 @@ using MusicApplicationAPI.Models.DbModels;
 
 namespace MusicApplicationAPI.Repositories
 {
-    public class UserRepository : IRepository<int, User>, IUserRepository
+    public class UserRepository : IUserRepository
     {
         #region Fields
         private readonly MusicManagementContext _context;
