@@ -87,11 +87,7 @@ namespace MusicApplicationAPI.Repositories
         public async Task<User> GetUserByEmail(string email)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-            return user == null
-            ?
-                    throw new NoSuchUserExistException($"User with email {email} doesn't exist!")
-                    :
-                    user;
+            return user;
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using MusicApplicationAPI.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MusicApplicationAPI.Models.DTOs.UserDTO
 {

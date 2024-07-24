@@ -12,5 +12,6 @@ namespace MusicApplicationAPI.Interfaces.Service
         Task<UserReturnDTO> GetUserByEmail(string email);
         Task<IEnumerable<UserReturnDTO>> GetAllUsers();
         Task<UserReturnDTO> DeleteUser(int userId);
+        Task<IEnumerable<UserReturnDTO>> GetAllAdminUsers();
     }
 }

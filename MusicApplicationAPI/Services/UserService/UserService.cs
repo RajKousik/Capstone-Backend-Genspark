@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Interfaces.Service;
-using MusicApplicationAPI.Models.DbModels;
+using MusicApplicationAPI.Models.Enums;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 
@@ -71,7 +71,8 @@ namespace MusicApplicationAPI.Services.UserService
             try
             {
                 var user = await _userRepository.GetById(userId);
-                return _mapper.Map<UserReturnDTO>(user);
+                var result = _mapper.Map<UserReturnDTO>(user);
+                return result;
             }
             catch (NoSuchUserExistException ex)
             {
@@ -95,6 +96,10 @@ namespace MusicApplicationAPI.Services.UserService
             try
             {
                 var user = await _userRepository.GetUserByEmail(email);
+                if(user == null)
+                {
+                    throw new NoSuchUserExistException();
+                }
                 return _mapper.Map<UserReturnDTO>(user);
             }
             catch (NoSuchUserExistException ex)
@@ -112,12 +117,37 @@ namespace MusicApplicationAPI.Services.UserService
         /// <summary>
         /// Gets all users.
         /// </summary>
-        /// <returns>A list of users.</returns>
+        /// <returns>A list of users (non-admins).</returns>
         public async Task<IEnumerable<UserReturnDTO>> GetAllUsers()
         {
             try
             {
-                var users = (await _userRepository.GetAll()).ToList();
+                var users = (await _userRepository.GetAll()).Where(u => u.Role != RoleType.Admin).ToList();
+                if (users.Count == 0)
+                    throw new NoUsersExistsExistsException("No users in the database");
+                return _mapper.Map<IEnumerable<UserReturnDTO>>(users);
+            }
+            catch (NoUsersExistsExistsException ex)
+            {
+                _logger.LogError(ex, "Error retrieving all users.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all users.");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Gets all users.
+        /// </summary>
+        /// <returns>A list of admin users </returns>
+        public async Task<IEnumerable<UserReturnDTO>> GetAllAdminUsers()
+        {
+            try
+            {
+                var users = (await _userRepository.GetAll()).Where(u => u.Role == RoleType.Admin).ToList();
                 if (users.Count == 0)
                     throw new NoUsersExistsExistsException("No users in the database");
                 return _mapper.Map<IEnumerable<UserReturnDTO>>(users);
@@ -149,6 +179,11 @@ namespace MusicApplicationAPI.Services.UserService
             catch (NoSuchUserExistException ex)
             {
                 _logger.LogError(ex, "User not found.");
+                throw;
+            }
+            catch(UnableToDeleteUserException ex)
+            {
+                _logger.LogError(ex, "Unable to Delete");
                 throw;
             }
             catch (Exception ex)

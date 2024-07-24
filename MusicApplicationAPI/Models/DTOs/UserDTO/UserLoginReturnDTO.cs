@@ -18,7 +18,7 @@ namespace MusicApplicationAPI.Models.DTOs.UserDTO
         public string Email { get; set; }
 
         [Required]
-        public string Role { get; set; } // Admin, Normal User, Premium User
+        public RoleType Role { get; set; } // Admin, Normal User, Premium User
         [Required]
         public string Token { get; set; }
     }

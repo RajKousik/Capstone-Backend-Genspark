@@ -5,6 +5,7 @@ using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
 using MusicApplicationAPI.Interfaces.Service.TokenService;
 using MusicApplicationAPI.Models.DbModels;
+using MusicApplicationAPI.Models.Enums;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using System.Diagnostics;
 using System.Security.Cryptography;
@@ -85,7 +86,8 @@ namespace MusicApplicationAPI.Services.UserService
                         Email = userInDB.Email,
                         UserId = userInDB.UserId,
                         Token = _tokenService.GenerateToken(userInDB),
-                        Role = "Normal User"
+                        Role = userInDB.Role,
+                        Username = userInDB.Username
                     };
                     return loginReturnDTO;
                 }
@@ -102,7 +104,7 @@ namespace MusicApplicationAPI.Services.UserService
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                throw new UnauthorizedUserException("Invalid username or password");
+                throw;
             }
         }
 
@@ -140,7 +142,15 @@ namespace MusicApplicationAPI.Services.UserService
                 }
                 #endregion
 
-                user = _mapper.Map<User>(userRegisterDTO);
+                DateTime dateOfBirth = userRegisterDTO.DOB.ToDateTime(TimeOnly.MinValue);
+
+                user = new User()
+                {
+                    Username = userRegisterDTO.Username,
+                    Email = userRegisterDTO.Email,
+                    DOB = dateOfBirth,
+                    Role = RoleType.NormalUser,
+                };
 
                 HMACSHA512 hMACSHA = new HMACSHA512();
                 user.PasswordHashKey = hMACSHA.Key;

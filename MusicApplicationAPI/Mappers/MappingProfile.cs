@@ -20,15 +20,30 @@ namespace MusicApplicationAPI.Mappers
             CreateMap<User, UserLoginDTO>().ReverseMap();
             CreateMap<User, UserLoginReturnDTO>().ReverseMap();
             CreateMap<User, UserRegisterReturnDTO>().ReverseMap();
+            CreateMap<User, UserUpdateDTO>().ReverseMap();
+            CreateMap<User, UserReturnDTO>().ReverseMap();
 
             CreateMap<UserRegisterDTO, UserLoginDTO>().ReverseMap();
             CreateMap<UserRegisterDTO, UserLoginReturnDTO>().ReverseMap();
             CreateMap<UserRegisterDTO, UserRegisterReturnDTO>().ReverseMap();
+            CreateMap<UserRegisterDTO, UserUpdateDTO>().ReverseMap();
+            CreateMap<UserRegisterDTO, UserReturnDTO>().ReverseMap();
 
             CreateMap<UserLoginDTO, UserLoginReturnDTO>().ReverseMap();
             CreateMap<UserLoginDTO, UserRegisterReturnDTO>().ReverseMap();
+            CreateMap<UserLoginDTO, UserUpdateDTO>().ReverseMap();
+            CreateMap<UserLoginDTO, UserReturnDTO>().ReverseMap();
 
             CreateMap<UserRegisterReturnDTO, UserLoginReturnDTO>().ReverseMap();
+            CreateMap<UserRegisterReturnDTO, UserUpdateDTO>().ReverseMap();
+            CreateMap<UserRegisterReturnDTO, UserReturnDTO>().ReverseMap();
+
+            CreateMap<UserLoginReturnDTO, UserUpdateDTO>().ReverseMap();
+            CreateMap<UserLoginReturnDTO, UserReturnDTO>().ReverseMap();
+
+            CreateMap<UserUpdateDTO, UserReturnDTO>().ReverseMap();
+
+
             #endregion
 
             #region Song

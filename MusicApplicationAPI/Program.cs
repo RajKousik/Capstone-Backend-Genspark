@@ -21,6 +21,7 @@ using MusicApplicationAPI.Services.SongService;
 using MusicApplicationAPI.Services;
 using MusicApplicationAPI.Services.FavoriteService;
 using MusicApplicationAPI.Services.RatingService;
+using System.Text.Json.Serialization;
 
 namespace MusicApplicationAPI
 {
@@ -151,6 +152,14 @@ namespace MusicApplicationAPI
                     options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
                 });
             });
+            #endregion
+
+            #region JSON Enum Coverter Configuration
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
+
             #endregion
 
             #region Build Phase
