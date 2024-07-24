@@ -102,6 +102,7 @@ namespace MusicApplicationAPI
             builder.Services.AddScoped<IPlaylistService, PlaylistService>();
             builder.Services.AddScoped<IPlaylistSongService, PlaylistSongService>();
             builder.Services.AddScoped<IArtistService, ArtistService>();
+            builder.Services.AddScoped<IAlbumService, AlbumService>();
 
             #endregion
 
