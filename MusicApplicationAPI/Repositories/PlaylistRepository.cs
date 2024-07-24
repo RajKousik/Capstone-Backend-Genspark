@@ -79,7 +79,7 @@ namespace MusicApplicationAPI.Repositories
             var playlist = await _context.Playlists.FirstOrDefaultAsync(p => p.PlaylistId == playlistId);
             return playlist == null
             ?
-                    throw new NoSuchPlaylistException($"Playlist with Id {playlistId} doesn't exist!")
+                    throw new NoSuchPlaylistExistException($"Playlist with Id {playlistId} doesn't exist!")
                     :
                     playlist;
         }
