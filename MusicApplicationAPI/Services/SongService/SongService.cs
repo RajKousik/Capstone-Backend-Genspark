@@ -19,17 +19,19 @@ namespace MusicApplicationAPI.Services.SongService
         #region Fields
         private readonly ISongRepository _songRepository;
         private readonly IArtistRepository _artistRepository;
+        private readonly IAlbumRepository _albumRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<SongService> _logger;
         #endregion
 
         #region Constructor
-        public SongService(ISongRepository songRepository, IMapper mapper, ILogger<SongService> logger, IArtistRepository artistRepository)
+        public SongService(ISongRepository songRepository, IMapper mapper, ILogger<SongService> logger, IArtistRepository artistRepository, IAlbumRepository albumRepository)
         {
             _songRepository = songRepository;
             _artistRepository = artistRepository;
             _mapper = mapper;
             _logger = logger;
+            _albumRepository = albumRepository;
         }
         #endregion
 
@@ -57,8 +59,7 @@ namespace MusicApplicationAPI.Services.SongService
                 // If album ID is provided, check if the album exists
                 if (songAddDTO.AlbumId.HasValue)
                 {
-                    //var album = await _albumRepository.GetById(songAddDTO.AlbumId.Value);
-                    Album album = null;
+                    var album = await _albumRepository.GetById(songAddDTO.AlbumId.Value);
                     if (album == null)
                     {
                         throw new NoSuchAlbumExistException($"Album with ID {songAddDTO.AlbumId.Value} does not exist.");
@@ -103,7 +104,9 @@ namespace MusicApplicationAPI.Services.SongService
                 var song = await _songRepository.GetById(songId);
 
                 await _artistRepository.GetById(songUpdateDTO.ArtistId);
-                //await _albumRepository.GetById(songUpdateDTO.AlbumId);
+
+                if(songUpdateDTO.AlbumId != null)
+                    await _albumRepository.GetById((int)songUpdateDTO.AlbumId);
 
                 song.Title = songUpdateDTO.Title;
                 song.Genre = songUpdateDTO.Genre;
