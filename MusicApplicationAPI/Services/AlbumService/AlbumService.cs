@@ -1,18 +1,10 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
-using MusicApplicationAPI.DTOs;
-using MusicApplicationAPI.Exceptions;
 using MusicApplicationAPI.Exceptions.AlbumExceptions;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.DTOs.AlbumDTO;
-using MusicApplicationAPI.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 public class AlbumService : IAlbumService
 {

@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using MusicApplicationAPI.Models.DbModels;
+using MusicApplicationAPI.Models.DTOs.AlbumDTO;
 using MusicApplicationAPI.Models.DTOs.ArtistDTO;
+using MusicApplicationAPI.Models.DTOs.FavoriteDTO;
 using MusicApplicationAPI.Models.DTOs.PlaylistDTO;
 using MusicApplicationAPI.Models.DTOs.PlaylistSongDTO;
+using MusicApplicationAPI.Models.DTOs.RatingDTO;
 using MusicApplicationAPI.Models.DTOs.SongDTO;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 
@@ -74,6 +77,39 @@ namespace MusicApplicationAPI.Mappers
             CreateMap<ArtistReturnDTO, ArtistUpdateDTO>().ReverseMap();
 
 
+
+
+            #endregion
+
+            #region Album
+
+            CreateMap<Album, AlbumAddDTO>().ReverseMap();
+            CreateMap<Album, AlbumReturnDTO>().ReverseMap();
+            CreateMap<Album, AlbumUpdateDTO>().ReverseMap();
+
+            CreateMap<AlbumAddDTO, AlbumReturnDTO>().ReverseMap();
+            CreateMap<AlbumAddDTO, AlbumUpdateDTO>().ReverseMap();
+
+            CreateMap<AlbumReturnDTO, AlbumUpdateDTO>().ReverseMap();
+
+            #endregion
+
+            #region Favorite
+            CreateMap<Favorite, FavoriteDTO>().ReverseMap();
+            CreateMap<Favorite, FavoriteReturnDTO>().ReverseMap();
+
+            CreateMap<FavoriteDTO, FavoriteReturnDTO>().ReverseMap();
+            #endregion
+
+            #region Rating
+            CreateMap<Rating, RatingDTO>().ReverseMap();
+            CreateMap<Rating, RatingReturnDTO>().ReverseMap();
+            CreateMap<Rating, SongRatingDTO>().ReverseMap();
+
+            CreateMap<RatingDTO, RatingReturnDTO>().ReverseMap();
+            CreateMap<RatingDTO, SongRatingDTO>().ReverseMap();
+
+            CreateMap<RatingReturnDTO, SongRatingDTO>().ReverseMap();
 
 
             #endregion

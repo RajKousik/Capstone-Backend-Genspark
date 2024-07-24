@@ -17,12 +17,12 @@ namespace MusicApplicationAPI.Services
 {
     public class ArtistService : IArtistService
     {
-        private readonly IRepository<int, Artist> _artistRepository;
+        private readonly IArtistRepository _artistRepository;
         private readonly ISongRepository _songRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<ArtistService> _logger;
 
-        public ArtistService(IRepository<int, Artist> artistRepository, ISongRepository songRepository, IMapper mapper, ILogger<ArtistService> logger)
+        public ArtistService(IArtistRepository artistRepository, ISongRepository songRepository, IMapper mapper, ILogger<ArtistService> logger)
         {
             _artistRepository = artistRepository;
             _songRepository = songRepository;

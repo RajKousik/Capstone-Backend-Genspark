@@ -20,6 +20,7 @@ using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Services.SongService;
 using MusicApplicationAPI.Services;
 using MusicApplicationAPI.Services.FavoriteService;
+using MusicApplicationAPI.Services.RatingService;
 
 namespace MusicApplicationAPI
 {
@@ -84,7 +85,7 @@ namespace MusicApplicationAPI
             builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
             builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
             builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
-            builder.Services.AddScoped<IRepository<int, Rating>, RatingRepository>();
+            builder.Services.AddScoped<IRatingRepository, RatingRepository>();
             #endregion
 
             #region AutoMapper
@@ -105,6 +106,7 @@ namespace MusicApplicationAPI
             builder.Services.AddScoped<IArtistService, ArtistService>();
             builder.Services.AddScoped<IAlbumService, AlbumService>();
             builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+            builder.Services.AddScoped<IRatingService, RatingService>();
 
             #endregion
 
@@ -152,9 +154,8 @@ namespace MusicApplicationAPI
                 });
             });
             #endregion
-            var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            var app = builder.Build();
             
             #region Swagger Configurations
             // Configure the HTTP request pipeline.
