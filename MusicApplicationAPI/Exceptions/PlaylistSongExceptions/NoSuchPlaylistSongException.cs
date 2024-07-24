@@ -1,15 +1,15 @@
 ﻿namespace MusicApplicationAPI.Exceptions.PlaylistSongExceptions
 {
     [Serializable]
-    public class NoSuchPlaylistSongException : Exception
+    public class NoSuchPlaylistSongExistException : Exception
     {
         private string msg;
-        public NoSuchPlaylistSongException()
+        public NoSuchPlaylistSongExistException()
         {
             msg = "Playlist-Song relationship does not exist.";
         }
 
-        public NoSuchPlaylistSongException(string message) : base(message)
+        public NoSuchPlaylistSongExistException(string message) : base(message)
         {
             msg = message;
         }
