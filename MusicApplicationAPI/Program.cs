@@ -1,8 +1,20 @@
+using Easy_Password_Validator.Models;
+using Easy_Password_Validator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MusicApplicationAPI.Contexts;
+using MusicApplicationAPI.Interfaces.Repository;
+using MusicApplicationAPI.Interfaces.Service.AuthService;
+using MusicApplicationAPI.Interfaces.Service.TokenService;
+using MusicApplicationAPI.Mappers;
+using MusicApplicationAPI.Models.DbModels;
+using MusicApplicationAPI.Models.DTOs.UserDTO;
+using MusicApplicationAPI.Repositories;
+using MusicApplicationAPI.Services.TokenService;
+using MusicApplicationAPI.Services.UserService;
+using System.Diagnostics;
 using System.Text;
 using WatchDog;
 
@@ -22,7 +34,7 @@ namespace MusicApplicationAPI
 
             #endregion
 
-            #region Swagger Configurations
+            #region Swagger
 
             builder.Services.AddSwaggerGen(option =>
             {
@@ -61,6 +73,38 @@ namespace MusicApplicationAPI
 
             #endregion
 
+            #region Repositories
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IRepository<int, Song>, SongRepository>();
+            builder.Services.AddScoped<IRepository<int, Playlist>, PlaylistRepository>();
+            builder.Services.AddScoped<IRepository<int, PlaylistSong>, PlaylistSongRepository>();
+            builder.Services.AddScoped<IRepository<int, Artist>, ArtistRepository>();
+            builder.Services.AddScoped<IRepository<int, Album>, AlbumRepository>();
+            builder.Services.AddScoped<IRepository<int, Favorite>, FavoriteRepository>();
+            builder.Services.AddScoped<IRepository<int, Rating>, RatingRepository>();
+            #endregion
+
+            #region AutoMapper
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
+            #endregion
+
+            #region Services
+
+            builder.Services.AddScoped<ITokenService, TokenService>();
+
+            builder.Services.AddScoped<IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO>, UserAuthService>();
+            builder.Services.AddScoped<IAuthLoginService<UserLoginReturnDTO, UserLoginDTO>, UserAuthService>();
+
+            #endregion
+
+            #region Logging
+            builder.Services.AddLogging(l => l.AddLog4Net());
+            #endregion
+
+            #region Password Validator
+            builder.Services.AddTransient(service => new PasswordValidatorService(new PasswordRequirements()));
+            #endregion
+
             #region Authentication
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -88,9 +132,19 @@ namespace MusicApplicationAPI
 
             #endregion
 
+            #region CORS
+            builder.Services.AddCors(opts =>
+            {
+                opts.AddPolicy("AllowAllCorsPolicy", options =>
+                {
+                    options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+                });
+            });
+            #endregion
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
+            
             #region Swagger Configurations
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -100,13 +154,15 @@ namespace MusicApplicationAPI
             }
             #endregion
 
+            #region Pipeline Configurations
+
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowAllCorsPolicy");
+            app.UseAuthentication();
             app.UseAuthorization();
-
-
             app.MapControllers();
 
+            #endregion
 
             #region WatchDog Configurations
             app.UseWatchDogExceptionLogger();
