@@ -5,10 +5,11 @@ using MusicApplicationAPI.Contexts;
 using MusicApplicationAPI.Exceptions.SongExceptions;
 using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Models.DbModels;
+using MusicApplicationAPI.Models.DTOs.SongDTO;
 
 namespace MusicApplicationAPI.Repositories
 {
-    public class SongRepository : IRepository<int, Song>
+    public class SongRepository : ISongRepository
     {
         #region Fields
         private readonly MusicManagementContext _context;
@@ -65,7 +66,8 @@ namespace MusicApplicationAPI.Repositories
         /// <returns>A list of all songs.</returns>
         public async Task<IEnumerable<Song>> GetAll()
         {
-            return await _context.Songs.ToListAsync();
+            var songs =  await _context.Songs.Include(s => s.Artist).Include(s=>s.Album).ToListAsync();
+            return songs;
         }
 
         /// <summary>
@@ -82,6 +84,26 @@ namespace MusicApplicationAPI.Repositories
                     throw new NoSuchSongExistException($"Song with Id {songId} doesn't exist!")
                     :
                     song;
+        }
+
+        public async Task<IEnumerable<Song>> GetSongsByAlbumId(int albumId)
+        {
+            var songs = (await _context.Songs.ToListAsync()).Where(s => s.AlbumId == albumId);
+            return songs == null
+            ?
+                    throw new NoSongsExistsException($"No songs with album Id {albumId}")
+                    :
+                    songs;
+        }
+
+        public async Task<IEnumerable<Song>> GetSongsByArtistId(int artistId)
+        {
+            var songs = (await _context.Songs.ToListAsync()).Where(s => s.ArtistId == artistId);
+            return songs == null
+                    ?
+                    throw new NoSongsExistsException($"No songs with artist Id {artistId}")
+                    :
+                    songs;
         }
 
         /// <summary>

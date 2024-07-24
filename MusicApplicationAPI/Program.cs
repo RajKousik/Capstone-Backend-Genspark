@@ -17,6 +17,8 @@ using MusicApplicationAPI.Services.UserService;
 using System.Diagnostics;
 using System.Text;
 using WatchDog;
+using MusicApplicationAPI.Interfaces.Service;
+using MusicApplicationAPI.Services.SongService;
 
 namespace MusicApplicationAPI
 {
@@ -75,7 +77,7 @@ namespace MusicApplicationAPI
 
             #region Repositories
             builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IRepository<int, Song>, SongRepository>();
+            builder.Services.AddScoped<ISongRepository, SongRepository>();
             builder.Services.AddScoped<IRepository<int, Playlist>, PlaylistRepository>();
             builder.Services.AddScoped<IRepository<int, PlaylistSong>, PlaylistSongRepository>();
             builder.Services.AddScoped<IRepository<int, Artist>, ArtistRepository>();
@@ -94,6 +96,9 @@ namespace MusicApplicationAPI
 
             builder.Services.AddScoped<IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO>, UserAuthService>();
             builder.Services.AddScoped<IAuthLoginService<UserLoginReturnDTO, UserLoginDTO>, UserAuthService>();
+
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<ISongService, SongService>();
 
             #endregion
 
