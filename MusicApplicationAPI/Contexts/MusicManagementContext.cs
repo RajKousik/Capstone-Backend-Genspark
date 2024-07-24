@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MusicApplicationAPI.Models.DbModels;
+using MusicApplicationAPI.Models.Enums;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MusicApplicationAPI.Contexts
 {
@@ -70,6 +73,63 @@ namespace MusicApplicationAPI.Contexts
                 .WithMany(s => s.Ratings)
                 .HasForeignKey(r => r.SongId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            #region Data Seeding
+
+            modelBuilder.Entity<Artist>().HasData(
+                new Artist { ArtistId = 1, Name = "Artist One", Bio = "Bio of Artist One", ImageUrl = "http://example.com/artist1.jpg" }
+            );
+
+            modelBuilder.Entity<Album>().HasData(
+                new Album { AlbumId = 1, Title = "Album One", ArtistId = 1, ReleaseDate = new DateTime(2020, 1, 1), CoverImageUrl = "http://example.com/album1.jpg" }
+            );
+
+            modelBuilder.Entity<Song>().HasData(
+                new Song { SongId = 1, Title = "Song One", ArtistId = 1, AlbumId = 1, Genre = GenreType.Pop, Duration = new TimeSpan(0, 3, 45), ReleaseDate = new DateTime(2020, 1, 1), Url = "http://example.com/song1.mp3" }
+            );
+
+            var hmac = new HMACSHA512();
+
+            modelBuilder.Entity<User>().HasData(
+                new User()
+                {
+                    UserId = 101,
+                    Username = "Kousik Raj",
+                    Email = "kousik@gmail.com",
+                    DOB = new DateTime(2000, 01, 01),
+                    Role = RoleType.Admin,
+                    PasswordHashKey = hmac.Key,
+                    PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Admin@123")),
+                },
+                new User()
+                {
+                    UserId = 102,
+                    Username = "Mathew",
+                    Email = "mathew@gmail.com",
+                    DOB = new DateTime(2003, 01, 01),
+                    Role = RoleType.NormalUser,
+                    PasswordHashKey = hmac.Key,
+                    PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Mathew@123")),
+                }
+            );
+
+            modelBuilder.Entity<Playlist>().HasData(
+                new Playlist { PlaylistId = 1, UserId = 102, Name = "Playlist One", IsPublic = true }
+            );
+
+            modelBuilder.Entity<PlaylistSong>().HasData(
+                new PlaylistSong { PlaylistSongId = 1, PlaylistId = 1, SongId = 1 }
+            );
+
+            modelBuilder.Entity<Favorite>().HasData(
+                new Favorite { FavoriteId = 1, UserId = 102, SongId = 1 }
+            );
+
+            modelBuilder.Entity<Rating>().HasData(
+                new Rating { RatingId = 1, UserId = 102, SongId = 1, RatingValue = 5 }
+            );
+
+            #endregion
         }
         #endregion
     }
