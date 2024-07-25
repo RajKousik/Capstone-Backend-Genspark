@@ -65,9 +65,27 @@ namespace MusicApplicationAPI.Services.SongService
                     }
                 }
 
-                // Map DTO to entity and set the release date
-                var song = _mapper.Map<Song>(songAddDTO);
-                song.ReleaseDate = DateTime.Now;
+                if (songAddDTO.Duration <= 0)
+                {
+                    throw new InvalidSongDuration();
+                }
+
+                if (!(Enum.TryParse<GenreType>(songAddDTO.Genre, true, out var genreTypeEnum)))
+                {
+                    throw new InvalidGenreException();
+                }
+
+                    // Map DTO to entity and set the release date
+                    Song song = new Song()
+                {
+                    Url = songAddDTO.Url,
+                    Title = songAddDTO.Title,
+                    Genre = genreTypeEnum,
+                    ArtistId = songAddDTO.ArtistId,
+                    AlbumId = songAddDTO.AlbumId,
+                    Duration = songAddDTO.Duration,
+                    ReleaseDate = DateTime.Now,
+                };
 
                 // Add the song to the repository
                 var addedSong = await _songRepository.Add(song);
@@ -81,6 +99,16 @@ namespace MusicApplicationAPI.Services.SongService
             catch (NoSuchAlbumExistException ex)
             {
                 _logger.LogError(ex, $"Album with ID {songAddDTO.AlbumId} not found.");
+                throw;
+            }
+            catch (InvalidSongDuration ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (InvalidGenreException ex)
+            {
+                _logger.LogError(ex.Message);
                 throw;
             }
             catch (UnableToAddSongException ex)
@@ -107,10 +135,22 @@ namespace MusicApplicationAPI.Services.SongService
                 if(songUpdateDTO.AlbumId != null)
                     await _albumRepository.GetById((int)songUpdateDTO.AlbumId);
 
+                if (songUpdateDTO.Duration <= 0)
+                {
+                    throw new InvalidSongDuration();
+                }
+
+                if (!(Enum.TryParse<GenreType>(songUpdateDTO.Genre, true, out var genreTypeEnum)))
+                {
+                    throw new InvalidGenreException();
+                }
+
                 song.Title = songUpdateDTO.Title;
-                song.Genre = songUpdateDTO.Genre;
+                song.Genre = genreTypeEnum;
                 song.ArtistId = songUpdateDTO.ArtistId;
                 song.AlbumId = songUpdateDTO.AlbumId;
+                song.Url = songUpdateDTO.Url;
+                song.Duration = songUpdateDTO.Duration;
 
                 var updatedSong = await _songRepository.Update(song);
                 return _mapper.Map<SongReturnDTO>(updatedSong);
@@ -123,6 +163,16 @@ namespace MusicApplicationAPI.Services.SongService
             catch (NoSuchArtistExistException ex)
             {
                 _logger.LogError(ex, $"Artist with ID {songUpdateDTO.ArtistId} not found.");
+                throw;
+            }
+            catch (InvalidSongDuration ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (InvalidGenreException ex)
+            {
+                _logger.LogError(ex.Message);
                 throw;
             }
             catch (NoSuchAlbumExistException ex)
@@ -188,6 +238,7 @@ namespace MusicApplicationAPI.Services.SongService
         {
             try
             {
+                
                 var song = await _songRepository.Delete(songId);
 
                 return _mapper.Map<SongReturnDTO>(song);
@@ -195,6 +246,11 @@ namespace MusicApplicationAPI.Services.SongService
             catch (NoSuchSongExistException ex)
             {
                 _logger.LogError(ex, $"Song not found. {ex}");
+                throw;
+            }
+            catch (UnableToDeleteSongException ex)
+            {
+                _logger.LogError(ex, $"Unable to delete {ex}");
                 throw;
             }
             catch (Exception ex)
@@ -208,8 +264,21 @@ namespace MusicApplicationAPI.Services.SongService
         {
             try
             {
-                var songs = await _songRepository.GetSongsByArtistId(artistId);
+                await _artistRepository.GetById(artistId);
+                var songs = (await _songRepository.GetSongsByArtistId(artistId)).ToList();
+                if (songs.Count == 0)
+                    throw new NoSongsExistsException();
                 return _mapper.Map<IEnumerable<SongReturnDTO>>(songs);
+            }
+            catch (NoSuchArtistExistException ex)
+            {
+                _logger.LogError(ex, "Error retrieving album songs.");
+                throw;
+            }
+            catch (NoSongsExistsException ex)
+            {
+                _logger.LogError(ex, "Error retrieving album songs.");
+                throw;
             }
             catch (Exception ex)
             {
@@ -222,8 +291,21 @@ namespace MusicApplicationAPI.Services.SongService
         {
             try
             {
-                var songs = await _songRepository.GetSongsByAlbumId(albumId);
+                await _albumRepository.GetById(albumId);
+                var songs = (await _songRepository.GetSongsByAlbumId(albumId)).ToList();
+                if (songs.Count == 0)
+                    throw new NoSongsExistsException();
                 return _mapper.Map<IEnumerable<SongReturnDTO>>(songs);
+            }
+            catch(NoSuchAlbumExistException ex)
+            {
+                _logger.LogError(ex, "Error retrieving album songs.");
+                throw;
+            }
+            catch (NoSongsExistsException ex)
+            {
+                _logger.LogError(ex, "Error retrieving album songs.");
+                throw;
             }
             catch (Exception ex)
             {
@@ -268,7 +350,10 @@ namespace MusicApplicationAPI.Services.SongService
             {
                 // Retrieve all songs from the repository
                 var songs = (await _songRepository.GetAll()).ToList();
-                Enum.TryParse<GenreType>(genre, true, out var genreTypeEnum);
+                if (!(Enum.TryParse<GenreType>(genre, true, out var genreTypeEnum)))
+                {
+                    throw new InvalidGenreException($"{genre} is not a valid genre"); 
+                }
                 if (songs.Count == 0)
                     throw new NoSongsExistsException();
 
@@ -281,6 +366,11 @@ namespace MusicApplicationAPI.Services.SongService
                 return _mapper.Map<IEnumerable<SongReturnDTO>>(filteredSongs);
             }
             catch (NoSongsExistsException ex)
+            {
+                _logger.LogError(ex, "Error retrieving album songs.");
+                throw;
+            }
+            catch (InvalidGenreException ex)
             {
                 _logger.LogError(ex, "Error retrieving album songs.");
                 throw;

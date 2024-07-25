@@ -15,9 +15,9 @@ namespace MusicApplicationAPI.Models.DTOs.SongDTO
         public int? AlbumId { get; set; }
 
         [Required]
-        public GenreType Genre { get; set; }
+        public string Genre { get; set; }
 
-        public TimeSpan Duration { get; set; }
+        public int Duration { get; set; }
 
         [Required]
         [Url]

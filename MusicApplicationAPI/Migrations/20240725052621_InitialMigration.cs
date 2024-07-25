@@ -95,7 +95,7 @@ namespace MusicApplicationAPI.Migrations
                     ArtistId = table.Column<int>(type: "int", nullable: false),
                     AlbumId = table.Column<int>(type: "int", nullable: true),
                     Genre = table.Column<int>(type: "int", nullable: false),
-                    Duration = table.Column<TimeSpan>(type: "time", nullable: false),
+                    Duration = table.Column<int>(type: "int", nullable: false),
                     ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Url = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -200,6 +200,51 @@ namespace MusicApplicationAPI.Migrations
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Artists",
+                columns: new[] { "ArtistId", "Bio", "ImageUrl", "Name" },
+                values: new object[] { 1, "Bio of Artist One", "http://example.com/artist1.jpg", "Artist One" });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "UserId", "DOB", "Email", "PasswordHash", "PasswordHashKey", "Role", "Username" },
+                values: new object[] { 101, new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "kousik@gmail.com", new byte[] { 231, 247, 32, 158, 20, 101, 223, 247, 247, 8, 80, 144, 114, 123, 56, 196, 64, 84, 52, 194, 138, 248, 64, 227, 31, 0, 211, 17, 232, 26, 109, 110, 234, 198, 105, 10, 46, 207, 221, 64, 254, 72, 187, 88, 210, 238, 29, 170, 225, 105, 105, 34, 199, 62, 6, 116, 79, 172, 112, 165, 1, 230, 107, 218 }, new byte[] { 39, 181, 158, 253, 61, 55, 50, 118, 16, 68, 133, 16, 254, 118, 16, 192, 223, 48, 140, 115, 98, 231, 57, 60, 91, 172, 18, 242, 186, 193, 29, 180, 41, 161, 84, 181, 38, 95, 213, 116, 146, 12, 24, 209, 125, 81, 227, 57, 254, 161, 189, 156, 48, 106, 40, 232, 88, 62, 214, 193, 235, 229, 221, 107, 84, 35, 13, 154, 57, 138, 120, 210, 133, 41, 126, 44, 237, 85, 189, 178, 162, 95, 203, 6, 144, 132, 4, 43, 34, 166, 62, 158, 112, 55, 25, 75, 26, 10, 255, 208, 65, 83, 111, 59, 5, 15, 221, 152, 101, 77, 123, 219, 14, 187, 216, 105, 127, 131, 220, 113, 164, 40, 150, 118, 74, 195, 81, 188 }, 1, "Kousik Raj" });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "UserId", "DOB", "Email", "PasswordHash", "PasswordHashKey", "Role", "Username" },
+                values: new object[] { 102, new DateTime(2003, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "mathew@gmail.com", new byte[] { 23, 207, 141, 49, 95, 120, 223, 163, 219, 35, 65, 79, 253, 101, 250, 81, 129, 162, 155, 60, 41, 218, 12, 242, 152, 115, 145, 118, 248, 236, 27, 217, 6, 72, 48, 182, 194, 3, 9, 217, 96, 88, 141, 163, 7, 131, 42, 30, 30, 129, 60, 205, 147, 47, 131, 43, 172, 184, 94, 72, 237, 204, 129, 216 }, new byte[] { 39, 181, 158, 253, 61, 55, 50, 118, 16, 68, 133, 16, 254, 118, 16, 192, 223, 48, 140, 115, 98, 231, 57, 60, 91, 172, 18, 242, 186, 193, 29, 180, 41, 161, 84, 181, 38, 95, 213, 116, 146, 12, 24, 209, 125, 81, 227, 57, 254, 161, 189, 156, 48, 106, 40, 232, 88, 62, 214, 193, 235, 229, 221, 107, 84, 35, 13, 154, 57, 138, 120, 210, 133, 41, 126, 44, 237, 85, 189, 178, 162, 95, 203, 6, 144, 132, 4, 43, 34, 166, 62, 158, 112, 55, 25, 75, 26, 10, 255, 208, 65, 83, 111, 59, 5, 15, 221, 152, 101, 77, 123, 219, 14, 187, 216, 105, 127, 131, 220, 113, 164, 40, 150, 118, 74, 195, 81, 188 }, 2, "Mathew" });
+
+            migrationBuilder.InsertData(
+                table: "Albums",
+                columns: new[] { "AlbumId", "ArtistId", "CoverImageUrl", "ReleaseDate", "Title" },
+                values: new object[] { 1, 1, "http://example.com/album1.jpg", new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Album One" });
+
+            migrationBuilder.InsertData(
+                table: "Playlists",
+                columns: new[] { "PlaylistId", "IsPublic", "Name", "UserId" },
+                values: new object[] { 1, true, "Playlist One", 102 });
+
+            migrationBuilder.InsertData(
+                table: "Songs",
+                columns: new[] { "SongId", "AlbumId", "ArtistId", "Duration", "Genre", "ReleaseDate", "Title", "Url" },
+                values: new object[] { 1, 1, 1, 120, 0, new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Song One", "http://example.com/song1.mp3" });
+
+            migrationBuilder.InsertData(
+                table: "Favorites",
+                columns: new[] { "FavoriteId", "PlaylistId", "SongId", "UserId" },
+                values: new object[] { 1, null, 1, 102 });
+
+            migrationBuilder.InsertData(
+                table: "PlaylistSongs",
+                columns: new[] { "PlaylistSongId", "PlaylistId", "SongId" },
+                values: new object[] { 1, 1, 1 });
+
+            migrationBuilder.InsertData(
+                table: "Ratings",
+                columns: new[] { "RatingId", "RatingValue", "SongId", "UserId" },
+                values: new object[] { 1, 5, 1, 102 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Albums_ArtistId",

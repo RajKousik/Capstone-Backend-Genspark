@@ -6,9 +6,11 @@ namespace MusicApplicationAPI.Models.DTOs.SongDTO
     {
         public string Title { get; set; }
 
-        public GenreType Genre { get; set; }
+        public string Genre { get; set; }
 
         public string Url { get; set; }
+
+        public int Duration { get; set; }
 
         public int ArtistId { get; set; }
 

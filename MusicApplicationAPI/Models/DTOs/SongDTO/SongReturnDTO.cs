@@ -21,7 +21,7 @@ namespace MusicApplicationAPI.Models.DTOs.SongDTO
         public GenreType Genre { get; set; }
 
         [Required]
-        public TimeSpan Duration { get; set; }
+        public int Duration { get; set; }
 
         [Required]
         public DateTime ReleaseDate { get; set; }

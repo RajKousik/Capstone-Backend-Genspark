@@ -12,7 +12,7 @@ using MusicApplicationAPI.Contexts;
 namespace MusicApplicationAPI.Migrations
 {
     [DbContext(typeof(MusicManagementContext))]
-    [Migration("20240723192558_InitialMigration")]
+    [Migration("20240725052621_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,6 +52,16 @@ namespace MusicApplicationAPI.Migrations
                     b.HasIndex("ArtistId");
 
                     b.ToTable("Albums");
+
+                    b.HasData(
+                        new
+                        {
+                            AlbumId = 1,
+                            ArtistId = 1,
+                            CoverImageUrl = "http://example.com/album1.jpg",
+                            ReleaseDate = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Title = "Album One"
+                        });
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.Artist", b =>
@@ -78,6 +88,15 @@ namespace MusicApplicationAPI.Migrations
                     b.HasKey("ArtistId");
 
                     b.ToTable("Artists");
+
+                    b.HasData(
+                        new
+                        {
+                            ArtistId = 1,
+                            Bio = "Bio of Artist One",
+                            ImageUrl = "http://example.com/artist1.jpg",
+                            Name = "Artist One"
+                        });
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.Favorite", b =>
@@ -106,6 +125,14 @@ namespace MusicApplicationAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Favorites");
+
+                    b.HasData(
+                        new
+                        {
+                            FavoriteId = 1,
+                            SongId = 1,
+                            UserId = 102
+                        });
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.Playlist", b =>
@@ -132,6 +159,15 @@ namespace MusicApplicationAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Playlists");
+
+                    b.HasData(
+                        new
+                        {
+                            PlaylistId = 1,
+                            IsPublic = true,
+                            Name = "Playlist One",
+                            UserId = 102
+                        });
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.PlaylistSong", b =>
@@ -155,6 +191,14 @@ namespace MusicApplicationAPI.Migrations
                     b.HasIndex("SongId");
 
                     b.ToTable("PlaylistSongs");
+
+                    b.HasData(
+                        new
+                        {
+                            PlaylistSongId = 1,
+                            PlaylistId = 1,
+                            SongId = 1
+                        });
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.Rating", b =>
@@ -181,6 +225,15 @@ namespace MusicApplicationAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Ratings");
+
+                    b.HasData(
+                        new
+                        {
+                            RatingId = 1,
+                            RatingValue = 5,
+                            SongId = 1,
+                            UserId = 102
+                        });
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.Song", b =>
@@ -197,8 +250,8 @@ namespace MusicApplicationAPI.Migrations
                     b.Property<int>("ArtistId")
                         .HasColumnType("int");
 
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("time");
+                    b.Property<int>("Duration")
+                        .HasColumnType("int");
 
                     b.Property<int>("Genre")
                         .HasColumnType("int");
@@ -222,6 +275,19 @@ namespace MusicApplicationAPI.Migrations
                     b.HasIndex("ArtistId");
 
                     b.ToTable("Songs");
+
+                    b.HasData(
+                        new
+                        {
+                            SongId = 1,
+                            AlbumId = 1,
+                            ArtistId = 1,
+                            Duration = 120,
+                            Genre = 0,
+                            ReleaseDate = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Title = "Song One",
+                            Url = "http://example.com/song1.mp3"
+                        });
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.User", b =>
@@ -262,6 +328,28 @@ namespace MusicApplicationAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 101,
+                            DOB = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "kousik@gmail.com",
+                            PasswordHash = new byte[] { 231, 247, 32, 158, 20, 101, 223, 247, 247, 8, 80, 144, 114, 123, 56, 196, 64, 84, 52, 194, 138, 248, 64, 227, 31, 0, 211, 17, 232, 26, 109, 110, 234, 198, 105, 10, 46, 207, 221, 64, 254, 72, 187, 88, 210, 238, 29, 170, 225, 105, 105, 34, 199, 62, 6, 116, 79, 172, 112, 165, 1, 230, 107, 218 },
+                            PasswordHashKey = new byte[] { 39, 181, 158, 253, 61, 55, 50, 118, 16, 68, 133, 16, 254, 118, 16, 192, 223, 48, 140, 115, 98, 231, 57, 60, 91, 172, 18, 242, 186, 193, 29, 180, 41, 161, 84, 181, 38, 95, 213, 116, 146, 12, 24, 209, 125, 81, 227, 57, 254, 161, 189, 156, 48, 106, 40, 232, 88, 62, 214, 193, 235, 229, 221, 107, 84, 35, 13, 154, 57, 138, 120, 210, 133, 41, 126, 44, 237, 85, 189, 178, 162, 95, 203, 6, 144, 132, 4, 43, 34, 166, 62, 158, 112, 55, 25, 75, 26, 10, 255, 208, 65, 83, 111, 59, 5, 15, 221, 152, 101, 77, 123, 219, 14, 187, 216, 105, 127, 131, 220, 113, 164, 40, 150, 118, 74, 195, 81, 188 },
+                            Role = 1,
+                            Username = "Kousik Raj"
+                        },
+                        new
+                        {
+                            UserId = 102,
+                            DOB = new DateTime(2003, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "mathew@gmail.com",
+                            PasswordHash = new byte[] { 23, 207, 141, 49, 95, 120, 223, 163, 219, 35, 65, 79, 253, 101, 250, 81, 129, 162, 155, 60, 41, 218, 12, 242, 152, 115, 145, 118, 248, 236, 27, 217, 6, 72, 48, 182, 194, 3, 9, 217, 96, 88, 141, 163, 7, 131, 42, 30, 30, 129, 60, 205, 147, 47, 131, 43, 172, 184, 94, 72, 237, 204, 129, 216 },
+                            PasswordHashKey = new byte[] { 39, 181, 158, 253, 61, 55, 50, 118, 16, 68, 133, 16, 254, 118, 16, 192, 223, 48, 140, 115, 98, 231, 57, 60, 91, 172, 18, 242, 186, 193, 29, 180, 41, 161, 84, 181, 38, 95, 213, 116, 146, 12, 24, 209, 125, 81, 227, 57, 254, 161, 189, 156, 48, 106, 40, 232, 88, 62, 214, 193, 235, 229, 221, 107, 84, 35, 13, 154, 57, 138, 120, 210, 133, 41, 126, 44, 237, 85, 189, 178, 162, 95, 203, 6, 144, 132, 4, 43, 34, 166, 62, 158, 112, 55, 25, 75, 26, 10, 255, 208, 65, 83, 111, 59, 5, 15, 221, 152, 101, 77, 123, 219, 14, 187, 216, 105, 127, 131, 220, 113, 164, 40, 150, 118, 74, 195, 81, 188 },
+                            Role = 2,
+                            Username = "Mathew"
+                        });
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.Album", b =>

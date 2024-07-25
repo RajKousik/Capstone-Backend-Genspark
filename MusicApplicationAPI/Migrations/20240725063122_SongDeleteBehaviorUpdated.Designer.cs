@@ -12,8 +12,8 @@ using MusicApplicationAPI.Contexts;
 namespace MusicApplicationAPI.Migrations
 {
     [DbContext(typeof(MusicManagementContext))]
-    [Migration("20240724165111_DataSeeding")]
-    partial class DataSeeding
+    [Migration("20240725063122_SongDeleteBehaviorUpdated")]
+    partial class SongDeleteBehaviorUpdated
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -250,8 +250,8 @@ namespace MusicApplicationAPI.Migrations
                     b.Property<int>("ArtistId")
                         .HasColumnType("int");
 
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("time");
+                    b.Property<int>("Duration")
+                        .HasColumnType("int");
 
                     b.Property<int>("Genre")
                         .HasColumnType("int");
@@ -282,7 +282,7 @@ namespace MusicApplicationAPI.Migrations
                             SongId = 1,
                             AlbumId = 1,
                             ArtistId = 1,
-                            Duration = new TimeSpan(0, 0, 3, 45, 0),
+                            Duration = 120,
                             Genre = 0,
                             ReleaseDate = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Title = "Song One",
@@ -335,8 +335,8 @@ namespace MusicApplicationAPI.Migrations
                             UserId = 101,
                             DOB = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "kousik@gmail.com",
-                            PasswordHash = new byte[] { 245, 183, 10, 59, 224, 186, 86, 186, 15, 23, 58, 190, 159, 142, 172, 34, 71, 120, 120, 147, 218, 26, 136, 64, 144, 224, 140, 26, 153, 46, 193, 162, 187, 19, 173, 82, 144, 135, 122, 155, 135, 120, 139, 14, 102, 203, 152, 137, 90, 40, 116, 146, 143, 86, 219, 27, 173, 240, 43, 155, 216, 130, 26, 155 },
-                            PasswordHashKey = new byte[] { 3, 167, 71, 129, 31, 105, 75, 197, 176, 180, 56, 125, 18, 44, 210, 43, 12, 45, 151, 50, 73, 81, 88, 9, 91, 217, 96, 176, 61, 57, 183, 56, 121, 184, 12, 5, 193, 225, 43, 134, 218, 33, 108, 241, 236, 22, 98, 33, 234, 94, 184, 87, 112, 144, 219, 218, 44, 225, 68, 71, 185, 143, 96, 98, 104, 30, 46, 202, 129, 137, 170, 223, 102, 191, 187, 54, 98, 116, 67, 29, 156, 33, 140, 51, 223, 4, 75, 73, 158, 179, 170, 207, 158, 114, 6, 118, 219, 233, 209, 27, 149, 106, 111, 105, 107, 219, 26, 229, 223, 9, 37, 144, 95, 187, 11, 198, 253, 140, 233, 144, 190, 70, 140, 170, 245, 105, 188, 65 },
+                            PasswordHash = new byte[] { 81, 161, 132, 150, 15, 38, 9, 89, 218, 229, 115, 72, 133, 115, 9, 197, 82, 163, 91, 43, 38, 231, 225, 34, 237, 170, 102, 148, 54, 242, 162, 189, 81, 193, 155, 16, 75, 140, 62, 247, 171, 252, 140, 211, 205, 118, 244, 229, 114, 102, 69, 136, 74, 9, 212, 71, 225, 219, 27, 40, 77, 121, 189, 85 },
+                            PasswordHashKey = new byte[] { 89, 86, 200, 105, 147, 185, 15, 225, 66, 191, 170, 21, 126, 210, 166, 226, 200, 172, 38, 230, 196, 184, 203, 204, 138, 226, 156, 214, 204, 9, 252, 30, 136, 97, 23, 85, 12, 159, 158, 116, 169, 248, 22, 207, 221, 73, 66, 254, 234, 60, 21, 95, 157, 250, 86, 26, 0, 167, 122, 198, 178, 180, 161, 63, 167, 186, 197, 30, 234, 120, 93, 132, 3, 78, 184, 120, 217, 246, 16, 86, 65, 130, 75, 120, 243, 148, 218, 235, 18, 34, 20, 39, 2, 79, 170, 138, 208, 72, 93, 237, 59, 17, 178, 159, 78, 234, 32, 113, 79, 69, 105, 111, 144, 198, 123, 135, 180, 76, 152, 156, 137, 62, 167, 187, 194, 53, 168, 241 },
                             Role = 1,
                             Username = "Kousik Raj"
                         },
@@ -345,8 +345,8 @@ namespace MusicApplicationAPI.Migrations
                             UserId = 102,
                             DOB = new DateTime(2003, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "mathew@gmail.com",
-                            PasswordHash = new byte[] { 183, 204, 198, 162, 182, 6, 82, 156, 209, 54, 59, 152, 23, 50, 192, 107, 188, 51, 222, 168, 58, 137, 47, 212, 190, 225, 103, 238, 69, 86, 191, 4, 179, 199, 60, 120, 60, 57, 229, 23, 194, 213, 26, 49, 30, 107, 49, 204, 32, 177, 178, 86, 89, 114, 212, 196, 61, 71, 157, 61, 103, 45, 244, 39 },
-                            PasswordHashKey = new byte[] { 3, 167, 71, 129, 31, 105, 75, 197, 176, 180, 56, 125, 18, 44, 210, 43, 12, 45, 151, 50, 73, 81, 88, 9, 91, 217, 96, 176, 61, 57, 183, 56, 121, 184, 12, 5, 193, 225, 43, 134, 218, 33, 108, 241, 236, 22, 98, 33, 234, 94, 184, 87, 112, 144, 219, 218, 44, 225, 68, 71, 185, 143, 96, 98, 104, 30, 46, 202, 129, 137, 170, 223, 102, 191, 187, 54, 98, 116, 67, 29, 156, 33, 140, 51, 223, 4, 75, 73, 158, 179, 170, 207, 158, 114, 6, 118, 219, 233, 209, 27, 149, 106, 111, 105, 107, 219, 26, 229, 223, 9, 37, 144, 95, 187, 11, 198, 253, 140, 233, 144, 190, 70, 140, 170, 245, 105, 188, 65 },
+                            PasswordHash = new byte[] { 78, 65, 119, 12, 24, 29, 224, 1, 38, 231, 202, 247, 87, 96, 199, 170, 222, 141, 223, 108, 233, 152, 243, 189, 230, 129, 155, 52, 195, 104, 187, 134, 58, 136, 16, 170, 43, 248, 130, 184, 68, 79, 166, 41, 19, 143, 226, 106, 239, 174, 244, 131, 128, 25, 103, 16, 186, 104, 229, 38, 58, 241, 9, 36 },
+                            PasswordHashKey = new byte[] { 89, 86, 200, 105, 147, 185, 15, 225, 66, 191, 170, 21, 126, 210, 166, 226, 200, 172, 38, 230, 196, 184, 203, 204, 138, 226, 156, 214, 204, 9, 252, 30, 136, 97, 23, 85, 12, 159, 158, 116, 169, 248, 22, 207, 221, 73, 66, 254, 234, 60, 21, 95, 157, 250, 86, 26, 0, 167, 122, 198, 178, 180, 161, 63, 167, 186, 197, 30, 234, 120, 93, 132, 3, 78, 184, 120, 217, 246, 16, 86, 65, 130, 75, 120, 243, 148, 218, 235, 18, 34, 20, 39, 2, 79, 170, 138, 208, 72, 93, 237, 59, 17, 178, 159, 78, 234, 32, 113, 79, 69, 105, 111, 144, 198, 123, 135, 180, 76, 152, 156, 137, 62, 167, 187, 194, 53, 168, 241 },
                             Role = 2,
                             Username = "Mathew"
                         });
@@ -373,7 +373,7 @@ namespace MusicApplicationAPI.Migrations
                     b.HasOne("MusicApplicationAPI.Models.DbModels.Song", "Song")
                         .WithMany("Favorites")
                         .HasForeignKey("SongId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("MusicApplicationAPI.Models.DbModels.User", "User")
                         .WithMany("Favorites")
@@ -423,7 +423,7 @@ namespace MusicApplicationAPI.Migrations
                     b.HasOne("MusicApplicationAPI.Models.DbModels.Song", "Song")
                         .WithMany("Ratings")
                         .HasForeignKey("SongId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MusicApplicationAPI.Models.DbModels.User", "User")

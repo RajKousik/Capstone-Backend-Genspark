@@ -54,7 +54,7 @@ namespace MusicApplicationAPI.Contexts
                 .HasOne(f => f.Song)
                 .WithMany(s => s.Favorites)
                 .HasForeignKey(f => f.SongId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Favorite>()
                 .HasOne(f => f.Playlist)
@@ -72,7 +72,7 @@ namespace MusicApplicationAPI.Contexts
                 .HasOne(r => r.Song)
                 .WithMany(s => s.Ratings)
                 .HasForeignKey(r => r.SongId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             #region Data Seeding
 
@@ -85,7 +85,7 @@ namespace MusicApplicationAPI.Contexts
             );
 
             modelBuilder.Entity<Song>().HasData(
-                new Song { SongId = 1, Title = "Song One", ArtistId = 1, AlbumId = 1, Genre = GenreType.Pop, Duration = new TimeSpan(0, 3, 45), ReleaseDate = new DateTime(2020, 1, 1), Url = "http://example.com/song1.mp3" }
+                new Song { SongId = 1, Title = "Song One", ArtistId = 1, AlbumId = 1, Genre = GenreType.Pop, Duration = 120, ReleaseDate = new DateTime(2020, 1, 1), Url = "http://example.com/song1.mp3" }
             );
 
             var hmac = new HMACSHA512();
