@@ -10,20 +10,20 @@ namespace MusicApplicationAPI.Controllers
 {
     [Route("api/v1/users")]
     [ApiController]
-    public class usersController : ControllerBase
+    public class UsersController : ControllerBase
     {
         #region Private Fields
 
         private readonly IUserService _userService;
         private readonly IAuthLoginService<UserLoginReturnDTO, UserLoginDTO> _authLoginService;
         private readonly IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO> _authRegisterService;
-        private readonly ILogger<usersController> _logger;
+        private readonly ILogger<UsersController> _logger;
 
         #endregion
 
         #region Constructor
 
-        public usersController(IUserService userService, ILogger<usersController> logger, IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO> authRegisterService, IAuthLoginService<UserLoginReturnDTO, UserLoginDTO> authLoginService)
+        public UsersController(IUserService userService, ILogger<UsersController> logger, IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO> authRegisterService, IAuthLoginService<UserLoginReturnDTO, UserLoginDTO> authLoginService)
         {
             _userService = userService;
             _logger = logger;

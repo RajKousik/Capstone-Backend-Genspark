@@ -11,12 +11,12 @@ namespace MusicApplicationAPI.Controllers
 {
     [Route("api/v1/playlists")]
     [ApiController]
-    public class playlistsController : ControllerBase
+    public class PlaylistsController : ControllerBase
     {
         private readonly IPlaylistService _playlistService;
-        private readonly ILogger<playlistsController> _logger;
+        private readonly ILogger<PlaylistsController> _logger;
 
-        public playlistsController(IPlaylistService playlistService, ILogger<playlistsController> logger)
+        public PlaylistsController(IPlaylistService playlistService, ILogger<PlaylistsController> logger)
         {
             _playlistService = playlistService;
             _logger = logger;

@@ -4,6 +4,7 @@ using MusicApplicationAPI.Exceptions.AlbumExceptions;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DTOs.AlbumDTO;
+using MusicApplicationAPI.Models.ErrorModels;
 using WatchDog;
 
 namespace MusicApplicationAPI.Controllers
@@ -51,8 +52,8 @@ namespace MusicApplicationAPI.Controllers
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
-                _logger.LogError(ex, "Unexpected error occurred while adding a new album.");
-                return StatusCode(500, new ErrorModel(500, "An unexpected error occurred."));
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
@@ -85,8 +86,8 @@ namespace MusicApplicationAPI.Controllers
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
-                _logger.LogError(ex, $"Unexpected error occurred while updating album with ID {albumId}.");
-                return StatusCode(500, new ErrorModel(500, "An unexpected error occurred."));
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
@@ -112,8 +113,8 @@ namespace MusicApplicationAPI.Controllers
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
-                _logger.LogError(ex, $"Unexpected error occurred while retrieving album with ID {albumId}.");
-                return StatusCode(500, new ErrorModel(500, "An unexpected error occurred."));
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
@@ -138,8 +139,8 @@ namespace MusicApplicationAPI.Controllers
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
-                _logger.LogError(ex, "Unexpected error occurred while retrieving all albums.");
-                return StatusCode(500, new ErrorModel(500, "An unexpected error occurred."));
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
@@ -171,8 +172,8 @@ namespace MusicApplicationAPI.Controllers
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
-                _logger.LogError(ex, $"Unexpected error occurred while retrieving albums for artist ID {artistId}.");
-                return StatusCode(500, new ErrorModel(500, "An unexpected error occurred."));
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
@@ -204,8 +205,8 @@ namespace MusicApplicationAPI.Controllers
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
-                _logger.LogError(ex, $"Unexpected error occurred while deleting album with ID {albumId}.");
-                return StatusCode(500, new ErrorModel(500, "An unexpected error occurred."));
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
     }

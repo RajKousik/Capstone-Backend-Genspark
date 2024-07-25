@@ -45,28 +45,31 @@ namespace MusicApplicationAPI.Services.FavoriteService
         /// <exception cref="NoSuchSongExistException">Thrown when the song does not exist.</exception>
         /// <exception cref="AlreadyMarkedAsFavorite">Thrown when the song is already marked as favorite by the user.</exception>
         /// <exception cref="UnableToAddFavoriteException">Thrown when unable to mark the song as favorite due to an unknown error.</exception>
-        public async Task MarkSongAsFavorite(FavoriteDTO favoriteDTO)
+        public async Task MarkSongAsFavorite(FavoriteSongDTO favoriteSongDTO)
         {
             try
             {
-                var user = await _userRepository.GetById(favoriteDTO.UserId);
+                var user = await _userRepository.GetById(favoriteSongDTO.UserId);
                 if (user == null)
                     throw new NoSuchUserExistException("User not found.");
 
-                if (favoriteDTO.SongId == null)
-                    throw new ArgumentNullException("Song not found.");
 
-                var song = await _songRepository.GetById((int)favoriteDTO.SongId);
+                var song = await _songRepository.GetById(favoriteSongDTO.SongId);
                 if (song == null)
                     throw new NoSuchSongExistException("Song not found.");
 
                 var isAlreadyLiked = (await _favoriteRepository.GetAll())
-                    .Any(fv => fv.UserId == favoriteDTO.UserId && fv.SongId == favoriteDTO.SongId);
+                    .Any(fv => fv.UserId == favoriteSongDTO.UserId && fv.SongId == favoriteSongDTO.SongId);
 
                 if (isAlreadyLiked)
                     throw new AlreadyMarkedAsFavorite("This song has already been marked as favorite.");
-
-                await _favoriteRepository.Add(_mapper.Map<Favorite>(favoriteDTO));
+                Favorite favorite = new Favorite()
+                {
+                    UserId = favoriteSongDTO.UserId,
+                    SongId = favoriteSongDTO.SongId,
+                    PlaylistId = null
+                };
+                await _favoriteRepository.Add(favorite);
             }
             catch (NoSuchUserExistException ex)
             {
@@ -103,23 +106,22 @@ namespace MusicApplicationAPI.Services.FavoriteService
         /// <exception cref="NoSuchSongExistException">Thrown when the song does not exist.</exception>
         /// <exception cref="NotMarkedAsFavorite">Thrown when the song is not marked as favorite by the user.</exception>
         /// <exception cref="UnableToDeleteFavoriteException">Thrown when unable to remove the song from favorites due to an unknown error.</exception>
-        public async Task RemoveSongFromFavorites(FavoriteDTO favoriteDTO)
+        public async Task RemoveSongFromFavorites(FavoriteSongDTO favoriteSongDTO)
         {
             try
             {
-                var user = await _userRepository.GetById(favoriteDTO.UserId);
+                var user = await _userRepository.GetById(favoriteSongDTO.UserId);
                 if (user == null)
                     throw new NoSuchUserExistException("User not found.");
 
-                if (favoriteDTO.SongId == null)
-                    throw new NoSuchSongExistException("Song not found.");
 
-                var song = await _songRepository.GetById((int)favoriteDTO.SongId);
+
+                var song = await _songRepository.GetById(favoriteSongDTO.SongId);
                 if (song == null)
                     throw new NoSuchSongExistException("Song not found.");
 
                 var isLiked = (await _favoriteRepository.GetAll())
-                    .FirstOrDefault(fv => fv.UserId == favoriteDTO.UserId && fv.SongId == favoriteDTO.SongId);
+                    .FirstOrDefault(fv => fv.UserId == favoriteSongDTO.UserId && fv.SongId == favoriteSongDTO.SongId);
 
                 if (isLiked == null)
                     throw new NotMarkedAsFavorite("This song has not been marked as favorite.");
@@ -157,30 +159,30 @@ namespace MusicApplicationAPI.Services.FavoriteService
         /// <exception cref="NoSuchPlaylistExistException">Thrown when the playlist does not exist.</exception>
         /// <exception cref="InvalidOperationException">Thrown when the playlist is private and does not belong to the user.</exception>
         /// <exception cref="UnableToAddFavoriteException">Thrown when unable to mark the playlist as favorite due to an unknown error.</exception>
-        public async Task MarkPlaylistAsFavorite(int userId, int playlistId)
+        public async Task MarkPlaylistAsFavorite(FavoritePlaylistDTO favoritePlaylistDTO)
         {
             try
             {
-                var user = await _userRepository.GetById(userId);
+                var user = await _userRepository.GetById(favoritePlaylistDTO.UserId);
                 if (user == null) throw new NoSuchUserExistException("User not found.");
 
-                var playlist = await _playlistRepository.GetById(playlistId);
+                var playlist = await _playlistRepository.GetById(favoritePlaylistDTO.PlaylistId);
                 if (playlist == null) throw new NoSuchPlaylistExistException("Playlist not found.");
 
-                if (playlist.UserId != userId && !playlist.IsPublic)
+                if (playlist.UserId != favoritePlaylistDTO.UserId && !playlist.IsPublic)
                     throw new InvalidOperationException("Cannot favorite a private playlist that does not belong to the user.");
 
                 var isAlreadyFavorited = (await _favoriteRepository.GetAll())
-                    .Any(fv => fv.UserId == userId && fv.PlaylistId == playlistId);
+                    .Any(fv => fv.UserId == favoritePlaylistDTO.UserId && fv.PlaylistId == favoritePlaylistDTO.PlaylistId);
 
                 if (isAlreadyFavorited)
                     throw new AlreadyMarkedAsFavorite("This playlist has already been marked as favorite.");
 
                 Favorite favorite = new Favorite()
                 {
-                    UserId = userId,
+                    UserId = favoritePlaylistDTO.UserId,
                     SongId = null,
-                    PlaylistId = playlistId
+                    PlaylistId = favoritePlaylistDTO.PlaylistId
                 };
 
                 await _favoriteRepository.Add(favorite);

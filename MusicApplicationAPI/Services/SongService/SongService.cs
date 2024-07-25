@@ -63,6 +63,13 @@ namespace MusicApplicationAPI.Services.SongService
                     {
                         throw new NoSuchAlbumExistException($"Album with ID {songAddDTO.AlbumId.Value} does not exist.");
                     }
+                    else
+                    {
+                        if(songAddDTO.ArtistId != album.ArtistId)
+                        {
+                            throw new UnableToAddSongException("Song Artist is different from Album's Artist");
+                        }
+                    }
                 }
 
                 if (songAddDTO.Duration <= 0)

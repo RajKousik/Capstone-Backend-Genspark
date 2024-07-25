@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MusicApplicationAPI.Contexts;
 
@@ -11,9 +12,10 @@ using MusicApplicationAPI.Contexts;
 namespace MusicApplicationAPI.Migrations
 {
     [DbContext(typeof(MusicManagementContext))]
-    partial class MusicManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20240725105815_AlbumDeleteBehaviorUpdated_V3")]
+    partial class AlbumDeleteBehaviorUpdated_V3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
