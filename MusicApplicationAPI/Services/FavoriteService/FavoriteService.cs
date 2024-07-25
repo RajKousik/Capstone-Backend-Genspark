@@ -222,18 +222,18 @@ namespace MusicApplicationAPI.Services.FavoriteService
         /// <exception cref="NoSuchUserExistException">Thrown when the user does not exist.</exception>
         /// <exception cref="NoSuchPlaylistExistException">Thrown when the playlist does not exist.</exception>
         /// <exception cref="UnableToDeleteFavoriteException">Thrown when unable to remove the playlist from favorites due to an unknown error.</exception>
-        public async Task RemovePlaylistFromFavorites(int userId, int playlistId)
+        public async Task RemovePlaylistFromFavorites(FavoritePlaylistDTO favoritePlaylistDTO)
         {
             try
             {
-                var user = await _userRepository.GetById(userId);
+                var user = await _userRepository.GetById(favoritePlaylistDTO.UserId);
                 if (user == null) throw new NoSuchUserExistException("User not found.");
 
-                var playlist = await _playlistRepository.GetById(playlistId);
+                var playlist = await _playlistRepository.GetById(favoritePlaylistDTO.PlaylistId);
                 if (playlist == null) throw new NoSuchPlaylistExistException("Playlist not found.");
 
                 var isFavorited = (await _favoriteRepository.GetAll())
-                    .FirstOrDefault(fv => fv.UserId == userId && fv.PlaylistId == playlistId);
+                    .FirstOrDefault(fv => fv.UserId == favoritePlaylistDTO.UserId && fv.PlaylistId == favoritePlaylistDTO.PlaylistId);
 
                 if (isFavorited == null)
                     throw new NotMarkedAsFavorite("This playlist has not been marked as favorite.");

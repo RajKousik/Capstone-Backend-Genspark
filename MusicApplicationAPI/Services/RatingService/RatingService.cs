@@ -295,38 +295,40 @@ namespace MusicApplicationAPI.Services.RatingService
         {
             try
             {
-                
                 var songs = await _songRepository.GetAll();
+                var ratings = await _ratingRepository.GetAll();
 
                 if (!songs.Any())
                 {
                     throw new NoSongsExistsException("No songs found.");
                 }
 
-                var ratings = await _ratingRepository.GetAll();
                 if (!ratings.Any())
                 {
-                    throw new NoRatingsExistsException("No Ratings found.");
+                    throw new NoRatingsExistsException("No ratings found.");
                 }
 
-
                 var averageRatings = ratings
-                    .GroupBy(r => r.SongId)
-                    .Select(g => new
-                    {
-                        SongId = g.Key,
-                        AverageRating = g.Average(r => r.RatingValue)
-                    })
-                    .OrderByDescending(r => r.AverageRating)
-                    .ToList();
+                                        .GroupBy(r => r.SongId)
+                                        .Select(g => new
+                                        {
+                                            SongId = g.Key,
+                                            AverageRating = g.Average(r => r.RatingValue)
+                                        })
+                                        .OrderByDescending(r => r.AverageRating)
+                                        .ToList();
 
                 var songRatingDTOs = averageRatings
-                    .Select(ar => new SongRatingDTO
-                    {
-                        SongId = ar.SongId,
-                        AverageRating = ar.AverageRating
-                    })
-                    .ToList();
+                                        .Join(songs,
+                                            ar => ar.SongId,
+                                            s => s.SongId,
+                                            (ar, s) => new SongRatingDTO
+                                            {
+                                                SongId = ar.SongId,
+                                                Title = s.Title, 
+                                                AverageRating = ar.AverageRating
+                                            })
+                                        .ToList();
 
                 return songRatingDTOs;
             }
@@ -337,7 +339,7 @@ namespace MusicApplicationAPI.Services.RatingService
             }
             catch (NoRatingsExistsException ex)
             {
-                _logger.LogError(ex, "Rating not found.");
+                _logger.LogError(ex, "Ratings not found.");
                 throw;
             }
             catch (Exception ex)
@@ -346,6 +348,7 @@ namespace MusicApplicationAPI.Services.RatingService
                 throw new UnableToRetrieveTopRatedSongsException($"Unable to retrieve top-rated songs. {ex}");
             }
         }
+
     }
 }
 
