@@ -5,20 +5,23 @@ using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.DTOs.AlbumDTO;
+using MusicApplicationAPI.Repositories;
 
 public class AlbumService : IAlbumService
 {
     private readonly IAlbumRepository _albumRepository;
     private readonly IArtistRepository _artistRepository;
+    private readonly ISongRepository _songRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<AlbumService> _logger;
 
-    public AlbumService(IAlbumRepository albumRepository, IArtistRepository artistRepository, IMapper mapper, ILogger<AlbumService> logger)
+    public AlbumService(IAlbumRepository albumRepository, IArtistRepository artistRepository, IMapper mapper, ILogger<AlbumService> logger, ISongRepository songRepository)
     {
         _albumRepository = albumRepository;
         _artistRepository = artistRepository;
         _mapper = mapper;
         _logger = logger;
+        _songRepository = songRepository;
     }
 
     /// <summary>
@@ -201,6 +204,7 @@ public class AlbumService : IAlbumService
             if (album == null)
                 throw new NoSuchAlbumExistException($"Album with ID {albumId} does not exist.");
 
+            await DeleteRelatedSongs(albumId);
             var deletedAlbum = await _albumRepository.Delete(albumId);
             return _mapper.Map<AlbumReturnDTO>(deletedAlbum);
         }
@@ -215,4 +219,27 @@ public class AlbumService : IAlbumService
             throw;
         }
     }
+
+    #region Private Methods
+    private async Task DeleteRelatedSongs(int albumId)
+    {
+        try
+        {
+            var songs = (await _songRepository.GetAll()).Where(s=>s.AlbumId == albumId).ToList();
+
+            if (songs.Count > 0)
+            {
+                foreach (var song in songs)
+                {
+                    await _songRepository.Delete(song.SongId);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting related songs.");
+            throw new UnableToDeleteAlbumException(ex.Message);
+        }
+    }
+    #endregion
 }

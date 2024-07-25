@@ -65,7 +65,7 @@ namespace MusicApplicationAPI.Repositories
         /// <returns>A list of all playlists.</returns>
         public async Task<IEnumerable<Playlist>> GetAll()
         {
-            return await _context.Playlists.Include(pl => pl.PlaylistSongs).Include(pl => pl.Favorites).ToListAsync();
+            return await _context.Playlists.ToListAsync();
         }
 
         /// <summary>
@@ -86,8 +86,7 @@ namespace MusicApplicationAPI.Repositories
 
         public async Task<IEnumerable<Playlist>> GetPlaylistsByUserId(int userId)
         {
-            return await _context.Playlists.Where(pl => pl.UserId == userId)
-                .Include(pl => pl.PlaylistSongs).Include(pl => pl.Favorites).ToListAsync();
+            return await _context.Playlists.Where(pl => pl.UserId == userId).ToListAsync();
         }
 
         /// <summary>

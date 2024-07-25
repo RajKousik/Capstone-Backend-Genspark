@@ -36,13 +36,13 @@ namespace MusicApplicationAPI.Contexts
                 .HasOne(ps => ps.Playlist)
                 .WithMany(p => p.PlaylistSongs)
                 .HasForeignKey(ps => ps.PlaylistId)
-                .OnDelete(DeleteBehavior.Restrict); //TODO
+                .OnDelete(DeleteBehavior.Cascade); 
 
             modelBuilder.Entity<Favorite>()
                 .HasOne(f => f.User)
                 .WithMany(u => u.Favorites)
                 .HasForeignKey(f => f.UserId)
-                .OnDelete(DeleteBehavior.Restrict); //TODO
+                .OnDelete(DeleteBehavior.Cascade); 
 
             modelBuilder.Entity<Favorite>()
                 .HasOne(f => f.Song)
@@ -54,13 +54,13 @@ namespace MusicApplicationAPI.Contexts
                 .HasOne(f => f.Playlist)
                 .WithMany(p => p.Favorites)
                 .HasForeignKey(f => f.PlaylistId)
-                .OnDelete(DeleteBehavior.Restrict); //TODO
+                .OnDelete(DeleteBehavior.SetNull); //TODO
 
             modelBuilder.Entity<Rating>()
                 .HasOne(r => r.User)
                 .WithMany(u => u.Ratings)
                 .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Restrict); //TODO
+                .OnDelete(DeleteBehavior.Cascade); 
 
             modelBuilder.Entity<Rating>()
                 .HasOne(r => r.Song)

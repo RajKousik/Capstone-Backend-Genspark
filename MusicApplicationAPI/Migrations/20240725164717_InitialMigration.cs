@@ -139,13 +139,13 @@ namespace MusicApplicationAPI.Migrations
                         column: x => x.SongId,
                         principalTable: "Songs",
                         principalColumn: "SongId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Favorites_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -165,13 +165,13 @@ namespace MusicApplicationAPI.Migrations
                         column: x => x.PlaylistId,
                         principalTable: "Playlists",
                         principalColumn: "PlaylistId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_PlaylistSongs_Songs_SongId",
                         column: x => x.SongId,
                         principalTable: "Songs",
                         principalColumn: "SongId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -192,13 +192,13 @@ namespace MusicApplicationAPI.Migrations
                         column: x => x.SongId,
                         principalTable: "Songs",
                         principalColumn: "SongId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Ratings_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -209,12 +209,12 @@ namespace MusicApplicationAPI.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "DOB", "Email", "PasswordHash", "PasswordHashKey", "Role", "Username" },
-                values: new object[] { 101, new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "kousik@gmail.com", new byte[] { 231, 247, 32, 158, 20, 101, 223, 247, 247, 8, 80, 144, 114, 123, 56, 196, 64, 84, 52, 194, 138, 248, 64, 227, 31, 0, 211, 17, 232, 26, 109, 110, 234, 198, 105, 10, 46, 207, 221, 64, 254, 72, 187, 88, 210, 238, 29, 170, 225, 105, 105, 34, 199, 62, 6, 116, 79, 172, 112, 165, 1, 230, 107, 218 }, new byte[] { 39, 181, 158, 253, 61, 55, 50, 118, 16, 68, 133, 16, 254, 118, 16, 192, 223, 48, 140, 115, 98, 231, 57, 60, 91, 172, 18, 242, 186, 193, 29, 180, 41, 161, 84, 181, 38, 95, 213, 116, 146, 12, 24, 209, 125, 81, 227, 57, 254, 161, 189, 156, 48, 106, 40, 232, 88, 62, 214, 193, 235, 229, 221, 107, 84, 35, 13, 154, 57, 138, 120, 210, 133, 41, 126, 44, 237, 85, 189, 178, 162, 95, 203, 6, 144, 132, 4, 43, 34, 166, 62, 158, 112, 55, 25, 75, 26, 10, 255, 208, 65, 83, 111, 59, 5, 15, 221, 152, 101, 77, 123, 219, 14, 187, 216, 105, 127, 131, 220, 113, 164, 40, 150, 118, 74, 195, 81, 188 }, 1, "Kousik Raj" });
+                values: new object[] { 101, new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "kousik@gmail.com", new byte[] { 188, 138, 20, 213, 242, 13, 239, 95, 129, 213, 45, 197, 0, 253, 84, 24, 82, 132, 113, 160, 32, 147, 178, 159, 167, 251, 182, 118, 1, 186, 103, 187, 178, 18, 147, 105, 236, 1, 60, 52, 203, 104, 143, 83, 47, 159, 61, 60, 147, 103, 244, 223, 246, 179, 72, 227, 83, 211, 113, 245, 208, 232, 145, 176 }, new byte[] { 57, 134, 191, 82, 188, 97, 218, 62, 178, 159, 107, 128, 131, 64, 208, 163, 107, 183, 240, 250, 27, 201, 16, 102, 172, 199, 222, 150, 254, 80, 90, 169, 29, 161, 128, 68, 39, 102, 137, 40, 178, 133, 2, 62, 250, 110, 3, 235, 201, 50, 98, 219, 246, 161, 47, 201, 22, 215, 9, 47, 107, 175, 183, 29, 252, 126, 28, 18, 192, 77, 7, 172, 182, 231, 112, 247, 71, 142, 39, 132, 0, 58, 220, 138, 227, 70, 61, 55, 169, 48, 224, 215, 32, 231, 90, 100, 33, 96, 229, 134, 220, 129, 131, 248, 59, 233, 198, 89, 171, 231, 249, 186, 35, 25, 65, 233, 12, 5, 151, 69, 206, 250, 232, 108, 189, 146, 73, 173 }, 1, "Kousik Raj" });
 
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "DOB", "Email", "PasswordHash", "PasswordHashKey", "Role", "Username" },
-                values: new object[] { 102, new DateTime(2003, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "mathew@gmail.com", new byte[] { 23, 207, 141, 49, 95, 120, 223, 163, 219, 35, 65, 79, 253, 101, 250, 81, 129, 162, 155, 60, 41, 218, 12, 242, 152, 115, 145, 118, 248, 236, 27, 217, 6, 72, 48, 182, 194, 3, 9, 217, 96, 88, 141, 163, 7, 131, 42, 30, 30, 129, 60, 205, 147, 47, 131, 43, 172, 184, 94, 72, 237, 204, 129, 216 }, new byte[] { 39, 181, 158, 253, 61, 55, 50, 118, 16, 68, 133, 16, 254, 118, 16, 192, 223, 48, 140, 115, 98, 231, 57, 60, 91, 172, 18, 242, 186, 193, 29, 180, 41, 161, 84, 181, 38, 95, 213, 116, 146, 12, 24, 209, 125, 81, 227, 57, 254, 161, 189, 156, 48, 106, 40, 232, 88, 62, 214, 193, 235, 229, 221, 107, 84, 35, 13, 154, 57, 138, 120, 210, 133, 41, 126, 44, 237, 85, 189, 178, 162, 95, 203, 6, 144, 132, 4, 43, 34, 166, 62, 158, 112, 55, 25, 75, 26, 10, 255, 208, 65, 83, 111, 59, 5, 15, 221, 152, 101, 77, 123, 219, 14, 187, 216, 105, 127, 131, 220, 113, 164, 40, 150, 118, 74, 195, 81, 188 }, 2, "Mathew" });
+                values: new object[] { 102, new DateTime(2003, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "mathew@gmail.com", new byte[] { 239, 176, 171, 188, 215, 46, 40, 60, 226, 122, 114, 116, 232, 48, 145, 182, 83, 167, 179, 165, 102, 41, 11, 91, 145, 62, 253, 62, 214, 210, 255, 56, 132, 70, 220, 66, 54, 11, 53, 240, 123, 125, 216, 5, 51, 175, 36, 231, 254, 64, 154, 43, 147, 72, 197, 99, 173, 244, 251, 227, 21, 25, 180, 133 }, new byte[] { 57, 134, 191, 82, 188, 97, 218, 62, 178, 159, 107, 128, 131, 64, 208, 163, 107, 183, 240, 250, 27, 201, 16, 102, 172, 199, 222, 150, 254, 80, 90, 169, 29, 161, 128, 68, 39, 102, 137, 40, 178, 133, 2, 62, 250, 110, 3, 235, 201, 50, 98, 219, 246, 161, 47, 201, 22, 215, 9, 47, 107, 175, 183, 29, 252, 126, 28, 18, 192, 77, 7, 172, 182, 231, 112, 247, 71, 142, 39, 132, 0, 58, 220, 138, 227, 70, 61, 55, 169, 48, 224, 215, 32, 231, 90, 100, 33, 96, 229, 134, 220, 129, 131, 248, 59, 233, 198, 89, 171, 231, 249, 186, 35, 25, 65, 233, 12, 5, 151, 69, 206, 250, 232, 108, 189, 146, 73, 173 }, 2, "Mathew" });
 
             migrationBuilder.InsertData(
                 table: "Albums",

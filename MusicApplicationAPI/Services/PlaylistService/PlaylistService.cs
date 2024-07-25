@@ -7,6 +7,7 @@ using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.Enums;
 using MusicApplicationAPI.Models.DTOs.PlaylistDTO;
 using System.Data;
+using MusicApplicationAPI.Repositories;
 
 namespace MusicApplicationAPI.Services
 {
@@ -18,16 +19,18 @@ namespace MusicApplicationAPI.Services
         private readonly IMapper _mapper;
         private readonly ILogger<PlaylistService> _logger;
         private readonly IConfiguration _configuration;
+        private readonly IFavoriteRepository _favoriteRepository;
         #endregion
 
         #region Constructor
-        public PlaylistService(IPlaylistRepository playlistRepository, IMapper mapper, ILogger<PlaylistService> logger, IUserRepository userRepository, IConfiguration configuration)
+        public PlaylistService(IPlaylistRepository playlistRepository, IMapper mapper, ILogger<PlaylistService> logger, IUserRepository userRepository, IConfiguration configuration, IFavoriteRepository favoriteRepository)
         {
             _playlistRepository = playlistRepository;
             _mapper = mapper;
             _logger = logger;
             _userRepository = userRepository;
             _configuration = configuration;
+            _favoriteRepository = favoriteRepository;
         }
         #endregion
 
@@ -170,7 +173,11 @@ namespace MusicApplicationAPI.Services
         {
             try
             {
+                await DeleteRelatedFavorites(playlistId);
+
                 var deletedPlaylist = await _playlistRepository.Delete(playlistId);
+
+
                 return _mapper.Map<PlaylistReturnDTO>(deletedPlaylist);
             }
             catch (NoSuchPlaylistExistException ex)
@@ -189,6 +196,7 @@ namespace MusicApplicationAPI.Services
                 throw;
             }
         }
+
 
         /// <summary>
         /// Retrieves playlists by a specific user ID.
@@ -285,6 +293,27 @@ namespace MusicApplicationAPI.Services
             int maxPlaylists = _configuration.GetValue<int>("PlaylistSettings:MaxPlaylistsPerNormalUser");
             var userPlaylists = await _playlistRepository.GetPlaylistsByUserId(userId);
             return userPlaylists.Count() >= maxPlaylists;
+        }
+
+
+        private async Task DeleteRelatedFavorites(int playlistId)
+        {
+            try
+            {
+                // Retrieve all favorites related to the playlist
+                var favorites = (await _favoriteRepository.GetAll()).Where(f => f.PlaylistId == playlistId);
+
+                // Delete each favorite
+                foreach (var favorite in favorites)
+                {
+                    await _favoriteRepository.Delete(favorite.FavoriteId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting favorites for playlist ID {playlistId}.");
+                throw;
+            }
         }
         #endregion
     }
