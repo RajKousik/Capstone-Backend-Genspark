@@ -1,28 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MusicApplicationAPI.Exceptions.AlbumExceptions;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Exceptions.SongExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DTOs.SongDTO;
-using StudentManagementApplicationAPI.Models.ErrorModels;
+using MusicApplicationAPI.Models.ErrorModels;
 using WatchDog;
 
 namespace MusicApplicationAPI.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("api/v1/songs")]
     [ApiController]
-    public class songsController : ControllerBase
+    public class SongsController : ControllerBase
     {
         #region Private Fields
 
         private readonly ISongService _songService;
-        private readonly ILogger<songsController> _logger;
+        private readonly ILogger<SongsController> _logger;
 
         #endregion
 
         #region Constructor
 
-        public songsController(ISongService songService, ILogger<songsController> logger)
+        public SongsController(ISongService songService, ILogger<SongsController> logger)
         {
             _songService = songService;
             _logger = logger;
@@ -242,6 +243,7 @@ namespace MusicApplicationAPI.Controllers
         /// <param name="genre">The genre to filter songs by.</param>
         /// <returns>A list of songs in the specified genre.</returns>
         [HttpGet("genre")]
+        [Authorize]
         [ProducesResponseType(typeof(IEnumerable<SongReturnDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]

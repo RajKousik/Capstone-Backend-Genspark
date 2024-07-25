@@ -9,7 +9,6 @@ using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.DTOs.PlaylistSongDTO;
 using MusicApplicationAPI.Models.DTOs.SongDTO;
 using MusicApplicationAPI.Models.Enums;
-using MusicApplicationAPI.Repositories;
 using System.Data;
 
 namespace MusicApplicationAPI.Services
@@ -53,7 +52,7 @@ namespace MusicApplicationAPI.Services
         /// </summary>
         /// <param name="playlistSongDTO">The playlist song DTO.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        /// <exception cref="NoSuchPlaylistException">Thrown when the specified playlist does not exist.</exception>
+        /// <exception cref="NoSuchPlaylistExistException">Thrown when the specified playlist does not exist.</exception>
         /// <exception cref="NoSuchSongExistException">Thrown when the specified song does not exist.</exception>
         /// <exception cref="UnableToAddPlaylistSongException">Thrown when the song could not be added to the playlist.</exception>
         public async Task<PlaylistSongReturnDTO> AddSongToPlaylist(PlaylistSongDTO playlistSongDTO)
@@ -67,6 +66,12 @@ namespace MusicApplicationAPI.Services
                 var song = await _songRepository.GetById(playlistSongDTO.SongId);
                 if (song == null)
                     throw new NoSuchSongExistException("Song not found.");
+
+                // Check if the song is already in the playlist
+                var playlistSongs = await _playlistSongRepository.GetPlaylistSongsByPlaylistId(playlistSongDTO.PlaylistId);
+                if (playlistSongs.Any(ps => ps.SongId == playlistSongDTO.SongId))
+                    throw new UnableToAddPlaylistSongException("The song is already in the playlist.");
+
 
                 if (await HasReachedSongLimitForPlaylist(playlist.PlaylistId, playlist.UserId))
                     throw new UnableToAddPlaylistSongException("The playlist has reached the maximum number of songs.");

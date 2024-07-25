@@ -74,6 +74,18 @@ namespace MusicApplicationAPI.Contexts
                 .HasForeignKey(r => r.SongId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Song>()
+                .HasOne(s => s.Artist)
+                .WithMany(a => a.Songs)
+                .HasForeignKey(s => s.ArtistId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PlaylistSong>()
+                .HasOne(ps => ps.Song)
+                .WithMany(s => s.PlaylistSongs)
+                .HasForeignKey(ps => ps.SongId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             #region Data Seeding
 
             modelBuilder.Entity<Artist>().HasData(

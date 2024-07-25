@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
-using StudentManagementApplicationAPI.Models.ErrorModels;
+using MusicApplicationAPI.Models.ErrorModels;
 using WatchDog;
 
 namespace MusicApplicationAPI.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("api/v1/users")]
     [ApiController]
     public class usersController : ControllerBase
     {

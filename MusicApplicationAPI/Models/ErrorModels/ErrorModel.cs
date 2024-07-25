@@ -1,4 +1,4 @@
-﻿namespace StudentManagementApplicationAPI.Models.ErrorModels
+﻿namespace MusicApplicationAPI.Models.ErrorModels
 {
     public class ErrorModel
     {

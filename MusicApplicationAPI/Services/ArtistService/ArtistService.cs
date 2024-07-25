@@ -44,6 +44,11 @@ namespace MusicApplicationAPI.Services
                 var addedArtist = await _artistRepository.Add(artist);
                 return _mapper.Map<ArtistReturnDTO>(addedArtist);
             }
+            catch (UnableToAddArtistException ex)
+            {
+                _logger.LogError(ex, "Error adding artist.");
+                throw new UnableToAddArtistException("Unable to add artist.");
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding artist.");
@@ -76,9 +81,9 @@ namespace MusicApplicationAPI.Services
                 _logger.LogError(ex, "Artist not found.");
                 throw;
             }
-            catch (UnableToDeleteArtistException ex)
+            catch (UnableToUpdateArtistException ex)
             {
-                _logger.LogError(ex, "Unable to delete the artist");
+                _logger.LogError(ex, "Unable to update the artist");
                 throw;
             }
             catch (Exception ex)
