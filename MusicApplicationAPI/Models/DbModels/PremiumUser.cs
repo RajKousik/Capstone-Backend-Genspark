@@ -17,5 +17,8 @@ namespace MusicApplicationAPI.Models.DbModels
 
         [ForeignKey(nameof(UserId))]
         public User User { get; set; }
+
+        public DateTime? LastNotifiedTwoDaysBefore { get; set; } // Track last notification for 2 days before
+        public DateTime? LastNotifiedOneHourBefore { get; set; } // Track 
     }
 }

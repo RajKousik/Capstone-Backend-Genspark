@@ -23,6 +23,8 @@ using MusicApplicationAPI.Services.FavoriteService;
 using MusicApplicationAPI.Services.RatingService;
 using System.Text.Json.Serialization;
 using MusicApplicationAPI.Services.EmailService;
+using Hangfire;
+using HangfireBasicAuthenticationFilter;
 
 namespace MusicApplicationAPI
 {
@@ -37,6 +39,22 @@ namespace MusicApplicationAPI
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
+
+            #endregion
+
+            #region Hangfire
+
+            // Add Hangfire services.
+            builder.Services.AddHangfire(configuration =>
+                configuration.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangFireConnection"))
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings());
+
+            // Add the processing server.
+            builder.Services.AddHangfireServer();
 
             #endregion
 
@@ -175,6 +193,27 @@ namespace MusicApplicationAPI
             var app = builder.Build();
             #endregion
 
+            app.UseHangfireDashboard("/hangfire/dashboard", new DashboardOptions
+            {
+                DashboardTitle = "Vibe Vault - Job Dashboard",
+                DarkModeEnabled = true,
+                DisplayStorageConnectionString = false,
+                Authorization = new[]
+                {
+                    new HangfireCustomBasicAuthenticationFilter
+                    {
+                        User = "admin",
+                        Pass = "admin"
+                    }
+                }
+            });
+
+
+            RecurringJob.AddOrUpdate<SubscriptionService>(
+                "check-expiring-subscriptions",
+                service => service.CheckAndNotifyExpiringSubscriptions(),
+                Cron.Minutely); // Runs every hour
+
             #region Swagger Configurations
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -208,4 +247,5 @@ namespace MusicApplicationAPI
             app.Run();
         }
     }
+
 }

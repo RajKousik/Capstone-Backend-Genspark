@@ -54,5 +54,14 @@ namespace MusicApplicationAPI.Repositories
         {
             return await _context.PremiumUsers.ToListAsync();
         }
+
+        public async Task<IEnumerable<PremiumUser>> GetUsersWithExpiringSubscriptions(DateTime twoDaysBeforeThreshold, DateTime oneHourBeforeThreshold)
+        {
+            return await _context.PremiumUsers
+                .Where(pu => (pu.EndDate <= twoDaysBeforeThreshold && pu.EndDate > DateTime.UtcNow && pu.LastNotifiedTwoDaysBefore == null)
+                              || (pu.EndDate <= oneHourBeforeThreshold && pu.EndDate > DateTime.UtcNow && pu.LastNotifiedOneHourBefore == null))
+                .ToListAsync();
+        }
+
     }
 }
