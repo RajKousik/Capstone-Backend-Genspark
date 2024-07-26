@@ -18,6 +18,7 @@ namespace MusicApplicationAPI.Services.UserService
         #region Private Fields
 
         private readonly ITokenService _tokenService;
+        private readonly IPremiumUserRepository _premiumUserRepository;
         private readonly IUserRepository _userRepo;
         private readonly IMapper _mapper;
         private readonly ILogger<UserAuthService> _logger;
@@ -39,7 +40,8 @@ namespace MusicApplicationAPI.Services.UserService
             IUserRepository userRepo,
             IMapper mapper,
             ILogger<UserAuthService> logger,
-            IPasswordService passwordService
+            IPasswordService passwordService,
+            IPremiumUserRepository premiumUserRepository
             )
         {
             _tokenService = tokenService;
@@ -47,6 +49,7 @@ namespace MusicApplicationAPI.Services.UserService
             _mapper = mapper;
             _logger = logger;
             _passwordService = passwordService;
+            _premiumUserRepository = premiumUserRepository;
         }
 
         #endregion
@@ -63,42 +66,45 @@ namespace MusicApplicationAPI.Services.UserService
         {
             try
             {
-                var userInDB = await _userRepo.GetUserByEmail(userLoginDTO.Email);
-                if (userInDB == null)
-                {
-                    throw new UnauthorizedUserException("Invalid username or password");
-                }
+                var userInDB = await GetUserByEmail(userLoginDTO.Email);
+                ValidateUserCredentials(userLoginDTO.Password, userInDB);
+                EnsureUserIsActive(userInDB);
 
-                if (_passwordService.VerifyPassword(userLoginDTO.Password, userInDB.PasswordHash, userInDB.PasswordHashKey))
+                bool isPremiumExpired = await CheckPremiumSubscription(userInDB);
+
+                if (isPremiumExpired)
                 {
-                    if (userInDB.Status != null && userInDB.Status.ToLower() == "active")
+                    var shortLivedToken = _tokenService.GenerateShortLivedToken(userInDB);
+                    return new UserLoginReturnDTO
                     {
-                        UserLoginReturnDTO loginReturnDTO = new UserLoginReturnDTO()
-                        {
-                            Email = userInDB.Email,
-                            UserId = userInDB.UserId,
-                            Token = _tokenService.GenerateToken(userInDB),
-                            Role = userInDB.Role,
-                            Username = userInDB.Username
-                        };
-                        return loginReturnDTO;
-                    }
-                    throw new EmailNotVerifiedException("You haven't verified your email");
+                        Email = userInDB.Email,
+                        UserId = userInDB.UserId,
+                        Token = shortLivedToken,
+                        Role = userInDB.Role,
+                        Username = userInDB.Username,
+                        IsPremiumExpired = true,
+                        Message = "Your premium subscription has expired. Please renew to continue enjoying premium features."
+                    };
                 }
                 else
                 {
-                    throw new UnauthorizedUserException("Invalid username or password");
+                    return GenerateLoginReturnDTO(userInDB);
                 }
+            }
+            catch (EmailNotVerifiedException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new EmailNotVerifiedException("You haven't verified your email, verify it first");
             }
             catch (UnauthorizedUserException ex)
             {
                 _logger.LogError(ex.Message);
                 throw new UnauthorizedUserException("Invalid username or password");
             }
-            catch (EmailNotVerifiedException ex)
+            catch (PremiumSubscriptionExpiredException ex)
             {
                 _logger.LogError(ex.Message);
-                throw new EmailNotVerifiedException("You havent verified your email, verify it first");
+                throw;
             }
             catch (Exception ex)
             {
@@ -172,7 +178,60 @@ namespace MusicApplicationAPI.Services.UserService
 
         #endregion
 
+        #region Private Methods
 
+        private async Task<User> GetUserByEmail(string email)
+        {
+            var user = await _userRepo.GetUserByEmail(email);
+            if (user == null)
+            {
+                throw new UnauthorizedUserException("Invalid username or password");
+            }
+            return user;
+        }
+
+        private void ValidateUserCredentials(string password, User user)
+        {
+            if (!_passwordService.VerifyPassword(password, user.PasswordHash, user.PasswordHashKey))
+            {
+                throw new UnauthorizedUserException("Invalid username or password");
+            }
+        }
+
+        private void EnsureUserIsActive(User user)
+        {
+            if (user.Status == null || user.Status.ToLower() != "active")
+            {
+                throw new EmailNotVerifiedException("You haven't verified your email");
+            }
+        }
+
+        private async Task<bool> CheckPremiumSubscription(User user)
+        {
+            var premiumUser = await _premiumUserRepository.GetByUserId(user.UserId);
+            if (premiumUser != null && premiumUser.EndDate < DateTime.UtcNow)
+            {
+                return true; // Indicating premium has expired
+            }
+            return false;
+        }
+
+        private UserLoginReturnDTO GenerateLoginReturnDTO(User user)
+        {
+            return new UserLoginReturnDTO
+            {
+                Email = user.Email,
+                UserId = user.UserId,
+                Token = _tokenService.GenerateToken(user),
+                Role = user.Role,
+                Username = user.Username,
+                IsPremiumExpired = false,
+                Message = string.Empty
+            };
+        }
+
+
+        #endregion
 
     }
 }

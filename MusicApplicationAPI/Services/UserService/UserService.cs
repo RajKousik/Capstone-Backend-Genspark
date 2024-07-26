@@ -4,6 +4,7 @@ using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.Enums;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
+using MusicApplicationAPI.Models.DbModels;
 
 namespace MusicApplicationAPI.Services.UserService
 {
@@ -14,18 +15,22 @@ namespace MusicApplicationAPI.Services.UserService
     {
         #region Fields
         private readonly IUserRepository _userRepository;
+        private readonly IEmailSender _emailSenderService;
+        private readonly IPremiumUserRepository _premiumUserRepository;
         private readonly IPasswordService _passwordService;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
         #endregion
 
         #region Constructor
-        public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger, IPasswordService passwordService)
+        public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger, IPasswordService passwordService, IPremiumUserRepository premiumUserRepository, IEmailSender emailSenderService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _logger = logger;
             _passwordService = passwordService;
+            _premiumUserRepository = premiumUserRepository;
+            _emailSenderService = emailSenderService;
         }
         #endregion
 
@@ -234,6 +239,303 @@ namespace MusicApplicationAPI.Services.UserService
                 throw;
             }
         }
+
+
+        public async Task<PremiumUser> UpgradeUserToPremium(int userId, PremiumRequestDTO premiumRequest)
+        {
+            try
+            {
+                var user = await _userRepository.GetById(userId);
+
+                if (user == null)
+                {
+                    throw new NoSuchUserExistException($"User with ID {userId} does not exist.");
+                }
+
+                user.Role = RoleType.PremiumUser;
+                await _userRepository.Update(user);
+
+                var existingPremiumUser = await _premiumUserRepository.GetByUserId(userId);
+                DateTime newEndDate;
+
+                if (existingPremiumUser == null)
+                {
+                    // New Premium Subscription
+                    newEndDate = DateTime.UtcNow.AddDays(premiumRequest.DurationInDays);
+                    var premiumUser = new PremiumUser
+                    {
+                        UserId = userId,
+                        StartDate = DateTime.UtcNow,
+                        EndDate = newEndDate,
+                        Money = premiumRequest.Money
+                    };
+
+                    var addedPremiumUser = await _premiumUserRepository.Add(premiumUser);
+                    await SendPremiumSubscriptionUpgradeEmail(user, newEndDate, isRenewal: false);
+
+                    return addedPremiumUser;
+                }
+                else
+                {
+                    if (existingPremiumUser.EndDate >= DateTime.UtcNow)
+                    {
+                        // Extend current premium subscription
+                        newEndDate = existingPremiumUser.EndDate.AddDays(premiumRequest.DurationInDays);
+                    }
+                    else
+                    {
+                        // Renew expired subscription
+                        newEndDate = DateTime.UtcNow.AddDays(premiumRequest.DurationInDays);
+                        existingPremiumUser.StartDate = DateTime.UtcNow; // Reset start date to now
+                    }
+
+                    existingPremiumUser.EndDate = newEndDate;
+                    existingPremiumUser.Money = premiumRequest.Money;
+
+                    await _premiumUserRepository.Update(existingPremiumUser);
+                    await SendPremiumSubscriptionUpgradeEmail(user, newEndDate, isRenewal: true);
+
+                    return existingPremiumUser;
+                }
+            }
+            catch (NoSuchUserExistException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (UnableToUpdateUserException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to upgrade user to premium");
+                throw;
+            }
+        }
+
+
+        public async Task<bool> DowngradePremiumUser(int userId)
+        {
+            try
+            {
+                var user = await GetUserEntityById(userId);
+                var premiumUser = await GetPremiumUserByUserId(userId);
+
+                ValidateUserIsPremium(user, premiumUser);
+                CheckSubscriptionStatus(premiumUser);
+
+                await DowngradeUserToNormal(user, premiumUser);
+
+                return true;
+            }
+            catch (NoSuchUserExistException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (NoSuchPremiumUserExistException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (UnableToUpdateUserException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (UnableToDeleteUserException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (ActiveSubscriptionException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error downgrading user to normal.");
+                throw;
+            }
+        }
+
+
+        #endregion
+
+
+
+        #region Private Methods
+
+        private async Task<User> GetUserEntityById(int userId)
+        {
+            var user = await _userRepository.GetById(userId);
+            if (user == null)
+            {
+                throw new NoSuchUserExistException($"User with ID {userId} does not exist.");
+            }
+            return user;
+        }
+
+        private async Task<PremiumUser> GetPremiumUserByUserId(int userId)
+        {
+            var premiumUser = await _premiumUserRepository.GetByUserId(userId);
+            if (premiumUser == null)
+            {
+                throw new NoSuchPremiumUserExistException("The user is not a premium user.");
+            }
+            return premiumUser;
+        }
+
+        private void ValidateUserIsPremium(User user, PremiumUser premiumUser)
+        {
+            if (user.Role != RoleType.PremiumUser || premiumUser == null)
+            {
+                throw new NoSuchPremiumUserExistException("The user is not a premium user.");
+            }
+        }
+
+        private void CheckSubscriptionStatus(PremiumUser premiumUser)
+        {
+            if (premiumUser.EndDate > DateTime.UtcNow)
+            {
+                throw new ActiveSubscriptionException("The user still has an active premium subscription.");
+            }
+        }
+
+        private async Task DowngradeUserToNormal(User user, PremiumUser premiumUser)
+        {
+            user.Role = RoleType.NormalUser;
+            await _userRepository.Update(user);
+            await _premiumUserRepository.Delete(premiumUser.Id);
+            _logger.LogInformation($"User with ID {user.UserId} downgraded to NormalUser.");
+        }
+
+        private async Task SendPremiumSubscriptionUpgradeEmail(User user, DateTime endDate, bool isRenewal)
+        {
+            string subject;
+            string body;
+
+            if (isRenewal)
+            {
+                subject = "VibeVault - Premium Subscription Renewed!";
+                body = $@"
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset='UTF-8'>
+                        <title>VibeVault Premium Subscription Renewal</title>
+                        <style>
+                            body {{ font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 0; }}
+                            .container {{ max-width: 600px; margin: 50px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); overflow: hidden; }}
+                            .header {{ background-color: #FF5733; color: white; padding: 20px; text-align: center; }}
+                            .content {{ padding: 30px; }}
+                            .footer {{ padding: 20px; font-size: 12px; color: #777; text-align: center; background-color: #f9f9f9; }}
+                            .premium-banner {{ font-size: 24px; font-weight: bold; margin: 20px 0; color: #FF5733; }}
+                            .info-text {{ color: #555; }}
+                            .social-links a {{ text-decoration: none; color: #FF5733; }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class='container'>
+                            <div class='header'>
+                                <h1>VibeVault Premium Subscription Renewal</h1>
+                            </div>
+                            <div class='content'>
+                                <p>Hello {user.Username},</p>
+                                <p>Thank you for renewing your VibeVault Premium subscription! 🎉</p>
+                                <div class='premium-banner'>Enjoy Premium Features Until {endDate:MMMM dd, yyyy}!</div>
+                                <p>We're thrilled to have you continue enjoying your premium benefits, which include:</p>
+                                <ol>
+                                    <li>Unlimited playlists</li>
+                                    <li>Unlimited songs in a playlist</li>
+                                    <li>Keep the playlist, even after the subscription</li>
+                                    <li>Offline downloads (coming soon...)</li>
+                                    <li>And much more!</li>
+                                </ol>
+                                <br/>
+                                <p class='info-text'>Your premium subscription is now extended until <strong>{endDate:MMMM dd, yyyy}</strong>. We're excited to have you explore the full potential of VibeVault's music experience.</p>
+                                <p>For any questions or assistance, please visit our <a href='https://example.com/support'>Support Center</a>.</p>
+                                <p>We hope you continue to enjoy your time with VibeVault. Keep vibing to your favorite tunes!</p>
+                            </div>
+                            <div class='footer'>
+                                <p>Thank you for being a valued member of the VibeVault community!</p>
+                                <p class='social-links'>
+                                    Follow us: 
+                                    <a href='https://twitter.com/vibevault'>Twitter</a> | 
+                                    <a href='https://facebook.com/vibevault'>Facebook</a> | 
+                                    <a href='https://instagram.com/vibevault'>Instagram</a>
+                                </p>
+                                <p>© 2024 VibeVault, All Rights Reserved</p>
+                                <p>123 Music Street, Suite 400, Chennai, India</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>";
+            }
+            else
+            {
+                subject = "VibeVault - Welcome to Premium Membership!";
+                body = $@"
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset='UTF-8'>
+                        <title>VibeVault Premium Membership</title>
+                        <style>
+                            body {{ font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 0; }}
+                            .container {{ max-width: 600px; margin: 50px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); overflow: hidden; }}
+                            .header {{ background-color: #4CAF50; color: white; padding: 20px; text-align: center; }}
+                            .content {{ padding: 30px; }}
+                            .footer {{ padding: 20px; font-size: 12px; color: #777; text-align: center; background-color: #f9f9f9; }}
+                            .premium-banner {{ font-size: 24px; font-weight: bold; margin: 20px 0; color: #4CAF50; }}
+                            .info-text {{ color: #555; }}
+                            .social-links a {{ text-decoration: none; color: #4CAF50; }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class='container'>
+                            <div class='header'>
+                                <h1>VibeVault Premium Membership</h1>
+                            </div>
+                            <div class='content'>
+                                <p>Hello {user.Username},</p>
+                                <p>Congratulations on becoming a VibeVault Premium Member! 🎉</p>
+                                <div class='premium-banner'>Enjoy Premium Features Until {endDate:MMMM dd, yyyy}!</div>
+                                <p>As a premium member, you now have access to exclusive features including:</p>
+                                <ul>
+                                    <li>Unlimited playlists</li>
+                                    <li>Unlimited songs in a playlist</li>
+                                    <li>Keep the playlist, even after the subscription</li>
+                                    <li>Offline downloads (coming soon...)</li>
+                                    <li>And much more!</li>
+                                </ul>
+                                <br/>
+                                <p class='info-text'>Your premium subscription is valid until <strong>{endDate:MMMM dd, yyyy}</strong>. We're excited to have you explore the full potential of VibeVault's music experience.</p>
+                                <p>For any questions or assistance, please visit our <a href='https://example.com/support'>Support Center</a>.</p>
+                                <p>We hope you enjoy your time with VibeVault. Keep vibing to your favorite tunes!</p>
+                            </div>
+                            <div class='footer'>
+                                <p>Thank you for being a valued member of the VibeVault community!</p>
+                                <p class='social-links'>
+                                    Follow us: 
+                                    <a href='https://twitter.com/vibevault'>Twitter</a> | 
+                                    <a href='https://facebook.com/vibevault'>Facebook</a> | 
+                                    <a href='https://instagram.com/vibevault'>Instagram</a>
+                                </p>
+                                <p>© 2024 VibeVault, All Rights Reserved</p>
+                                <p>123 Music Street, Suite 400, Chennai, India</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>";
+            }
+
+            await _emailSenderService.SendEmailAsync(user.Email, subject, body);
+        }
+
 
         #endregion
 

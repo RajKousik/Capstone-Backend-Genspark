@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using MusicApplicationAPI.Contexts;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Interfaces.Repository;
-using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DbModels;
 
 namespace MusicApplicationAPI.Repositories

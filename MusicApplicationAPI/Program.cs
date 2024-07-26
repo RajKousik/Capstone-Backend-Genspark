@@ -88,6 +88,7 @@ namespace MusicApplicationAPI
             builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
             builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
             builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+            builder.Services.AddScoped<IPremiumUserRepository, PremiumUserRepository>();
             builder.Services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
             #endregion 
 
@@ -132,8 +133,10 @@ namespace MusicApplicationAPI
                     {
                         ValidateIssuer = false,
                         ValidateAudience = false,
+                        ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey:JWT"]))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey:JWT"])),
+                        ClockSkew = TimeSpan.Zero   // to prevent JWT's additional 5mins expiry time
                     };
 
                 });

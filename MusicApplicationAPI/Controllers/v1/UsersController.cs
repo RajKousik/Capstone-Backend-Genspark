@@ -6,6 +6,7 @@ using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Models.ErrorModels;
+using MusicApplicationAPI.Services.UserService;
 using WatchDog;
 
 namespace MusicApplicationAPI.Controllers.v1
@@ -151,6 +152,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// Retrieves all users.
         /// </summary>
         /// <returns>A list of all users.</returns>
+        [Authorize]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<UserReturnDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -283,6 +285,88 @@ namespace MusicApplicationAPI.Controllers.v1
             catch (Exception ex)
             {
                 // Log exception details here
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+        [Authorize]
+        [HttpPut("upgrade-to-premium")]
+        public async Task<IActionResult> UpgradeToPremium(int userId, [FromBody] PremiumRequestDTO premiumRequestDTO)
+        {
+            try
+            {
+                await _userService.UpgradeUserToPremium(userId, premiumRequestDTO);
+                return Ok(new { Message = "User upgraded to Premium successfully." });
+            }
+            catch (NoSuchUserExistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (UnableToUpdateUserException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+
+        /// <summary>
+        /// Downgrades a premium user to a normal user.
+        /// </summary>
+        /// <param name="userId">The ID of the user to downgrade.</param>
+        /// <returns>An action result indicating success or failure.</returns>
+        [Authorize]
+        [HttpPost("downgrade")]
+        public async Task<IActionResult> DowngradePremiumUser(int userId)
+        {
+            try
+            {
+                await _userService.DowngradePremiumUser(userId);
+                return Ok(new { message = "User downgraded to normal user successfully." });
+            }
+            catch (NoSuchUserExistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (ActiveSubscriptionException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(400, new ErrorModel(400, ex.Message));
+            }
+            catch (NoSuchPremiumUserExistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (UnableToUpdateUserException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+            catch (UnableToDeleteUserException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+            catch (Exception ex)
+            {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
                 return StatusCode(500, new ErrorModel(500, ex.Message));

@@ -15,5 +15,8 @@ namespace MusicApplicationAPI.Interfaces.Service
         Task<IEnumerable<UserReturnDTO>> GetAllAdminUsers();
 
         Task<bool> ChangePassword(ChangePasswordRequestDTO requestDTO);
+        Task<PremiumUser> UpgradeUserToPremium(int userId, PremiumRequestDTO premiumRequestDTO);
+
+        Task<bool> DowngradePremiumUser(int userId);
     }
 }

@@ -25,6 +25,8 @@ namespace MusicApplicationAPI.Contexts
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<EmailVerification> EmailVerifications { get; set; }
+        public DbSet<PremiumUser> PremiumUsers { get; set; }
+
 
         #endregion
 
@@ -50,6 +52,12 @@ namespace MusicApplicationAPI.Contexts
                 .HasOne(ev => ev.User)
                 .WithOne(u => u.EmailVerification)
                 .HasForeignKey<EmailVerification>(ev => ev.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PremiumUser>()
+                .HasOne(p => p.User)
+                .WithOne()
+                .HasForeignKey<PremiumUser>(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Favorite>()

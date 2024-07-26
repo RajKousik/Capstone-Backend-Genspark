@@ -1,17 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MusicApplicationAPI.Exceptions.EmailExceptions;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
-using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Models.ErrorModels;
-using MusicApplicationAPI.Services.EmailService;
-using MusicApplicationAPI.Services.UserService;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using WatchDog;
 
 namespace MusicApplicationAPI.Controllers.v1
@@ -72,6 +66,12 @@ namespace MusicApplicationAPI.Controllers.v1
                 return StatusCode(401, new ErrorModel(401, $"{ex.Message}"));
             }
             catch (EmailNotVerifiedException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(401, new ErrorModel(401, $"{ex.Message}"));
+            }
+            catch (PremiumSubscriptionExpiredException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
@@ -165,7 +165,8 @@ namespace MusicApplicationAPI.Controllers.v1
         {
             try
             {
-                await _emailVerificationService.VerifyEmail(userId, verificationCode);
+                var isSuccess = await _emailVerificationService.VerifyEmail(userId, verificationCode);
+
                 return Ok(new { message = "Verified successfully." });
             }
             catch (Exception ex)

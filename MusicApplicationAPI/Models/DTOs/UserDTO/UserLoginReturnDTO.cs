@@ -21,5 +21,7 @@ namespace MusicApplicationAPI.Models.DTOs.UserDTO
         public RoleType Role { get; set; } // Admin, Normal User, Premium User
         [Required]
         public string Token { get; set; }
+        public bool IsPremiumExpired { get; set; } // New flag for premium status
+        public string Message { get; set; } // Optional message for users
     }
 }
