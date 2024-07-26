@@ -22,6 +22,7 @@ using MusicApplicationAPI.Services;
 using MusicApplicationAPI.Services.FavoriteService;
 using MusicApplicationAPI.Services.RatingService;
 using System.Text.Json.Serialization;
+using MusicApplicationAPI.Services.EmailService;
 
 namespace MusicApplicationAPI
 {
@@ -78,7 +79,7 @@ namespace MusicApplicationAPI
 
             #endregion
 
-            #region Repositories
+            #region Repositories Injection
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ISongRepository, SongRepository>();
             builder.Services.AddScoped<IPlaylistRepository, PlaylistRepository>();
@@ -87,13 +88,14 @@ namespace MusicApplicationAPI
             builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
             builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
             builder.Services.AddScoped<IRatingRepository, RatingRepository>();
-            #endregion
+            builder.Services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
+            #endregion 
 
             #region AutoMapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             #endregion
 
-            #region Services
+            #region Services Injection
 
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO>, UserAuthService>();
@@ -106,6 +108,9 @@ namespace MusicApplicationAPI
             builder.Services.AddScoped<IAlbumService, AlbumService>();
             builder.Services.AddScoped<IFavoriteService, FavoriteService>();
             builder.Services.AddScoped<IRatingService, RatingService>();
+
+            builder.Services.AddScoped<IEmailSender, EmailSenderService>();
+            builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 
             #endregion
 

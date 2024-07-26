@@ -7,7 +7,6 @@ using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.Enums;
 using MusicApplicationAPI.Models.DTOs.PlaylistDTO;
 using System.Data;
-using MusicApplicationAPI.Repositories;
 
 namespace MusicApplicationAPI.Services
 {

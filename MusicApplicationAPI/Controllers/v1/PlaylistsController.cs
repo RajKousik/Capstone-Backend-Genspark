@@ -7,7 +7,7 @@ using MusicApplicationAPI.Models.DTOs.PlaylistDTO;
 using MusicApplicationAPI.Models.ErrorModels;
 using WatchDog;
 
-namespace MusicApplicationAPI.Controllers
+namespace MusicApplicationAPI.Controllers.v1
 {
     [Route("api/v1/playlists")]
     [ApiController]
@@ -118,7 +118,7 @@ namespace MusicApplicationAPI.Controllers
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return StatusCode(500, new ErrorModel(500, ex.Message)); 
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
@@ -228,7 +228,7 @@ namespace MusicApplicationAPI.Controllers
             }
             catch (NoPlaylistsExistsException ex)
             {
-                WatchLogger.Log(ex.Message);    
+                WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
                 return StatusCode(404, new ErrorModel(404, ex.Message));
             }

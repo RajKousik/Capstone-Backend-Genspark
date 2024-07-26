@@ -7,7 +7,7 @@ using MusicApplicationAPI.Models.DTOs.RatingDTO;
 using WatchDog;
 using MusicApplicationAPI.Models.ErrorModels;
 
-namespace MusicApplicationAPI.Controllers
+namespace MusicApplicationAPI.Controllers.v1
 {
     [ApiController]
     [Route("api/v1/ratings")]
@@ -184,7 +184,7 @@ namespace MusicApplicationAPI.Controllers
         /// <param name="userId">The ID of the user.</param>
         /// <param name="songId">The ID of the song.</param>
         [HttpDelete]
-        public async Task<IActionResult> DeleteRating([FromQuery]int userId, [FromQuery] int songId)
+        public async Task<IActionResult> DeleteRating([FromQuery] int userId, [FromQuery] int songId)
         {
             try
             {

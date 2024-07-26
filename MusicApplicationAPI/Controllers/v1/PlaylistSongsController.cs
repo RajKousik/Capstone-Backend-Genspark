@@ -8,7 +8,7 @@ using MusicApplicationAPI.Models.DTOs.PlaylistSongDTO;
 using MusicApplicationAPI.Models.ErrorModels;
 using WatchDog;
 
-namespace MusicApplicationAPI.Controllers
+namespace MusicApplicationAPI.Controllers.v1
 {
     [Route("api/v1/playlist-songs")]
     [ApiController]
@@ -40,19 +40,19 @@ namespace MusicApplicationAPI.Controllers
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return NotFound(new ErrorModel ( 404,  ex.Message ));
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (NoSuchSongExistException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return NotFound(new ErrorModel (404, ex.Message));
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (UnableToAddPlaylistSongException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return BadRequest(new ErrorModel (400, ex.Message));
+                return BadRequest(new ErrorModel(400, ex.Message));
             }
             catch (Exception ex)
             {
@@ -78,31 +78,31 @@ namespace MusicApplicationAPI.Controllers
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return NotFound(new ErrorModel (404, ex.Message));
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (NoSuchSongExistException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return NotFound(new ErrorModel (404, ex.Message));
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (NoSuchPlaylistSongExistException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return NotFound(new ErrorModel (404, ex.Message));
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (UnableToDeletePlaylistSongException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return BadRequest(new ErrorModel (400, ex.Message));
+                return BadRequest(new ErrorModel(400, ex.Message));
             }
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, "Error removing song from playlist.");
-                return StatusCode(500, new ErrorModel ( 404, "Internal server error." ));
+                return StatusCode(500, new ErrorModel(404, "Internal server error."));
             }
         }
 
@@ -123,7 +123,7 @@ namespace MusicApplicationAPI.Controllers
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return NotFound(new ErrorModel (404, ex.Message));
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (NoSongsInPlaylistException ex)
             {
@@ -135,7 +135,7 @@ namespace MusicApplicationAPI.Controllers
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, "Error retrieving songs in playlist.");
-                return StatusCode(500, new ErrorModel (500, ex.Message));
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
@@ -156,25 +156,25 @@ namespace MusicApplicationAPI.Controllers
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return NotFound(new ErrorModel (404, ex.Message));
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (NoSongsInPlaylistException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return NotFound(new ErrorModel (404, ex.Message));
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (UnableToClearPlaylistException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return BadRequest(new ErrorModel (400, ex.Message));
+                return BadRequest(new ErrorModel(400, ex.Message));
             }
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, "Error clearing playlist.");
-                return StatusCode(500, new ErrorModel (500, ex.Message));
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
@@ -201,7 +201,7 @@ namespace MusicApplicationAPI.Controllers
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
-                return StatusCode(500, new ErrorModel (500, ex.Message));
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
     }

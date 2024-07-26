@@ -24,6 +24,7 @@ namespace MusicApplicationAPI.Contexts
         public DbSet<Album> Albums { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Rating> Ratings { get; set; }
+        public DbSet<EmailVerification> EmailVerifications { get; set; }
 
         #endregion
 
@@ -42,7 +43,14 @@ namespace MusicApplicationAPI.Contexts
                 .HasOne(f => f.User)
                 .WithMany(u => u.Favorites)
                 .HasForeignKey(f => f.UserId)
-                .OnDelete(DeleteBehavior.Cascade); 
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // EmailVerification relationships
+            modelBuilder.Entity<EmailVerification>()
+                .HasOne(ev => ev.User)
+                .WithOne(u => u.EmailVerification)
+                .HasForeignKey<EmailVerification>(ev => ev.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Favorite>()
                 .HasOne(f => f.Song)
@@ -54,7 +62,7 @@ namespace MusicApplicationAPI.Contexts
                 .HasOne(f => f.Playlist)
                 .WithMany(p => p.Favorites)
                 .HasForeignKey(f => f.PlaylistId)
-                .OnDelete(DeleteBehavior.SetNull); //TODO
+                .OnDelete(DeleteBehavior.Restrict); //TODO
 
             modelBuilder.Entity<Rating>()
                 .HasOne(r => r.User)

@@ -9,7 +9,7 @@ using MusicApplicationAPI.Exceptions.PlaylistExceptions;
 using WatchDog;
 using MusicApplicationAPI.Models.DbModels;
 
-namespace MusicApplicationAPI.Controllers
+namespace MusicApplicationAPI.Controllers.v1
 {
     [ApiController]
     [Route("api/v1/favorites")]

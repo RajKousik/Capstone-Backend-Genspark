@@ -10,6 +10,7 @@ using MusicApplicationAPI.Models.DTOs.UserDTO;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
+using MusicApplicationAPI.Exceptions.EmailExceptions;
 
 namespace MusicApplicationAPI.Services.UserService
 {
@@ -80,16 +81,19 @@ namespace MusicApplicationAPI.Services.UserService
                 bool isPasswordSame = ComparePassword(encryptedPassword, userInDB.PasswordHash);
                 if (isPasswordSame)
                 {
-                    
-                    UserLoginReturnDTO loginReturnDTO = new UserLoginReturnDTO()
+                    if (userInDB.Status != null && userInDB.Status.ToLower() == "active")
                     {
-                        Email = userInDB.Email,
-                        UserId = userInDB.UserId,
-                        Token = _tokenService.GenerateToken(userInDB),
-                        Role = userInDB.Role,
-                        Username = userInDB.Username
-                    };
-                    return loginReturnDTO;
+                        UserLoginReturnDTO loginReturnDTO = new UserLoginReturnDTO()
+                        {
+                            Email = userInDB.Email,
+                            UserId = userInDB.UserId,
+                            Token = _tokenService.GenerateToken(userInDB),
+                            Role = userInDB.Role,
+                            Username = userInDB.Username
+                        };
+                        return loginReturnDTO;
+                    }
+                    throw new EmailNotVerifiedException("You haven't verified your email");
                 }
                 else
                 {
@@ -100,6 +104,11 @@ namespace MusicApplicationAPI.Services.UserService
             {
                 _logger.LogError(ex.Message);
                 throw new UnauthorizedUserException("Invalid username or password");
+            }
+            catch (EmailNotVerifiedException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new EmailNotVerifiedException("You havent verified your email, verify it first");
             }
             catch (Exception ex)
             {
@@ -150,6 +159,7 @@ namespace MusicApplicationAPI.Services.UserService
                     Email = userRegisterDTO.Email,
                     DOB = dateOfBirth,
                     Role = RoleType.NormalUser,
+                    Status = "Not Verified",
                 };
 
                 HMACSHA512 hMACSHA = new HMACSHA512();

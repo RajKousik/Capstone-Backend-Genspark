@@ -6,7 +6,7 @@ using MusicApplicationAPI.Models.DTOs.ArtistDTO;
 using MusicApplicationAPI.Models.ErrorModels;
 using WatchDog;
 
-namespace MusicApplicationAPI.Controllers
+namespace MusicApplicationAPI.Controllers.v1
 {
     [Route("api/v1/artists")]
     [ApiController]

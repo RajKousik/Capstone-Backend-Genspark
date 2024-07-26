@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
@@ -6,7 +7,7 @@ using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Models.ErrorModels;
 using WatchDog;
 
-namespace MusicApplicationAPI.Controllers
+namespace MusicApplicationAPI.Controllers.v1
 {
     [Route("api/v1/users")]
     [ApiController]
@@ -15,20 +16,16 @@ namespace MusicApplicationAPI.Controllers
         #region Private Fields
 
         private readonly IUserService _userService;
-        private readonly IAuthLoginService<UserLoginReturnDTO, UserLoginDTO> _authLoginService;
-        private readonly IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO> _authRegisterService;
         private readonly ILogger<UsersController> _logger;
 
         #endregion
 
         #region Constructor
 
-        public UsersController(IUserService userService, ILogger<UsersController> logger, IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO> authRegisterService, IAuthLoginService<UserLoginReturnDTO, UserLoginDTO> authLoginService)
+        public UsersController(IUserService userService, ILogger<UsersController> logger)
         {
             _userService = userService;
             _logger = logger;
-            _authRegisterService = authRegisterService;
-            _authLoginService = authLoginService;
         }
 
         #endregion
@@ -99,7 +96,7 @@ namespace MusicApplicationAPI.Controllers
                 var result = await _userService.GetUserById(userId);
                 return Ok(result);
             }
-            catch(NoSuchUserExistException ex)
+            catch (NoSuchUserExistException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
@@ -249,89 +246,7 @@ namespace MusicApplicationAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Logs in a user.
-        /// </summary>
-        /// <param name="userLoginDTO">The user login data.</param>
-        /// <returns>The login result including the token.</returns>
-        [HttpPost("login")]
-        [ProducesResponseType(typeof(UserLoginReturnDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Login([FromBody] UserLoginDTO userLoginDTO)
-        {
-            if (userLoginDTO == null)
-            {
-                return BadRequest(new ErrorModel(400, "Invalid login data."));
-            }
-
-            try
-            {
-                var result = await _authLoginService.Login(userLoginDTO);
-                return Ok(result);
-            }
-            catch (UnauthorizedUserException ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
-                return StatusCode(401, new ErrorModel(401, $"{ex.Message}"));
-            }
-            catch (Exception ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
-                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
-            }
-        }
-
-        /// <summary>
-        /// Registers a new user.
-        /// </summary>
-        /// <param name="userRegisterDTO">The user registration data.</param>
-        /// <returns>The registration result.</returns>
-        [HttpPost("register")]
-        [ProducesResponseType(typeof(UserRegisterReturnDTO), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status409Conflict)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Register([FromBody] UserRegisterDTO userRegisterDTO)
-        {
-            if (userRegisterDTO == null)
-            {
-                return BadRequest(new ErrorModel(400, "Invalid registration data."));
-            }
-
-            try
-            {
-                var result = await _authRegisterService.Register(userRegisterDTO);
-                return CreatedAtAction(nameof(GetUserById), new { userId = result.UserId }, result);
-            }
-            catch (DuplicateEmailException ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
-                return StatusCode(409, new ErrorModel(409, $"{ex.Message}"));
-            }
-            catch (InvalidPasswordException ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
-                return StatusCode(409, new ErrorModel(409, $"{ex.Message}"));
-            }
-            catch (UnableToAddUserException ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
-                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
-            }
-            catch (Exception ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
-                return StatusCode(500, new ErrorModel(409, $"{ex.Message}"));
-            }
-        }
+        
 
         #endregion
     }

@@ -34,6 +34,9 @@ namespace MusicApplicationAPI.Models.DbModels
         [Required]
         public DateTime DOB { get; set; }
 
+        public string? Status { get; set; }
+        public EmailVerification? EmailVerification { get; set; }
+
         public ICollection<Favorite> Favorites { get; set; }
         public ICollection<Rating> Ratings { get; set; }
         public ICollection<Playlist> Playlists { get; set; }
