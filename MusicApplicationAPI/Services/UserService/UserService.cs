@@ -14,16 +14,18 @@ namespace MusicApplicationAPI.Services.UserService
     {
         #region Fields
         private readonly IUserRepository _userRepository;
+        private readonly IPasswordService _passwordService;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
         #endregion
 
         #region Constructor
-        public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger)
+        public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger, IPasswordService passwordService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _logger = logger;
+            _passwordService = passwordService;
         }
         #endregion
 
@@ -189,6 +191,46 @@ namespace MusicApplicationAPI.Services.UserService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting user.");
+                throw;
+            }
+        }
+
+
+        public async Task<bool> ChangePassword(ChangePasswordRequestDTO requestDTO)
+        {
+            try
+            {
+                var user = await _userRepository.GetById(requestDTO.UserId);
+
+                if (user == null)
+                    throw new NoSuchUserExistException("User not found.");
+
+                if (!_passwordService.VerifyPassword(requestDTO.CurrentPassword, user.PasswordHash, user.PasswordHashKey))
+                    return false;
+
+                user.PasswordHash = _passwordService.HashPassword(requestDTO.NewPassword, out byte[] key);
+                user.PasswordHashKey = key;
+                await _userRepository.Update(user);
+                return true;
+            }
+            catch (NoSuchUserExistException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (InvalidPasswordException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (UnableToUpdateUserException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
                 throw;
             }
         }

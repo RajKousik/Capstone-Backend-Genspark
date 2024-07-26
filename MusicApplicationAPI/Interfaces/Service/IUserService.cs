@@ -13,5 +13,7 @@ namespace MusicApplicationAPI.Interfaces.Service
         Task<IEnumerable<UserReturnDTO>> GetAllUsers();
         Task<UserReturnDTO> DeleteUser(int userId);
         Task<IEnumerable<UserReturnDTO>> GetAllAdminUsers();
+
+        Task<bool> ChangePassword(ChangePasswordRequestDTO requestDTO);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Easy_Password_Validator;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
@@ -7,10 +6,8 @@ using MusicApplicationAPI.Interfaces.Service.TokenService;
 using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.Enums;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Text;
 using MusicApplicationAPI.Exceptions.EmailExceptions;
+using MusicApplicationAPI.Interfaces.Service;
 
 namespace MusicApplicationAPI.Services.UserService
 {
@@ -24,9 +21,7 @@ namespace MusicApplicationAPI.Services.UserService
         private readonly IUserRepository _userRepo;
         private readonly IMapper _mapper;
         private readonly ILogger<UserAuthService> _logger;
-        private readonly PasswordValidatorService _passwordValidatorService;
-
-        private readonly bool AllowPasswordValidation;
+        private readonly IPasswordService _passwordService;
 
         #endregion
 
@@ -44,17 +39,14 @@ namespace MusicApplicationAPI.Services.UserService
             IUserRepository userRepo,
             IMapper mapper,
             ILogger<UserAuthService> logger,
-            PasswordValidatorService passwordValidatorService,
-            IConfiguration configuration
+            IPasswordService passwordService
             )
         {
             _tokenService = tokenService;
             _userRepo = userRepo;
             _mapper = mapper;
             _logger = logger;
-            _passwordValidatorService = passwordValidatorService;
-            bool.TryParse(configuration.GetSection("AllowPasswordValidation").Value, out bool allowPasswordValidation);
-            AllowPasswordValidation = allowPasswordValidation;
+            _passwordService = passwordService;
         }
 
         #endregion
@@ -76,10 +68,8 @@ namespace MusicApplicationAPI.Services.UserService
                 {
                     throw new UnauthorizedUserException("Invalid username or password");
                 }
-                HMACSHA512 hMACSHA = new HMACSHA512(userInDB.PasswordHashKey);
-                var encryptedPassword = hMACSHA.ComputeHash(Encoding.UTF8.GetBytes(userLoginDTO.Password));
-                bool isPasswordSame = ComparePassword(encryptedPassword, userInDB.PasswordHash);
-                if (isPasswordSame)
+
+                if (_passwordService.VerifyPassword(userLoginDTO.Password, userInDB.PasswordHash, userInDB.PasswordHashKey))
                 {
                     if (userInDB.Status != null && userInDB.Status.ToLower() == "active")
                     {
@@ -137,20 +127,6 @@ namespace MusicApplicationAPI.Services.UserService
                     throw new DuplicateEmailException("Email id is already registered");
                 }
 
-                #region Password Validation
-                if (AllowPasswordValidation)
-                {
-                    var isPasswordValid = _passwordValidatorService.TestAndScore(userRegisterDTO.Password);
-                    Debug.WriteLine($"Password score {_passwordValidatorService.Score}, {_passwordValidatorService.FailureMessages} ");
-                    var failureMessages = string.Join(", ", _passwordValidatorService.FailureMessages);
-                    if (!isPasswordValid)
-                    {
-                        Debug.WriteLine("Invalid password");
-                        throw new InvalidPasswordException(failureMessages);
-                    }
-                }
-                #endregion
-
                 DateTime dateOfBirth = userRegisterDTO.DOB.ToDateTime(TimeOnly.MinValue);
 
                 user = new User()
@@ -162,9 +138,8 @@ namespace MusicApplicationAPI.Services.UserService
                     Status = "Not Verified",
                 };
 
-                HMACSHA512 hMACSHA = new HMACSHA512();
-                user.PasswordHashKey = hMACSHA.Key;
-                user.PasswordHash = hMACSHA.ComputeHash(Encoding.UTF8.GetBytes(userRegisterDTO.Password));
+                user.PasswordHash = _passwordService.HashPassword(userRegisterDTO.Password, out byte[] key);
+                user.PasswordHashKey = key;
 
                 var addedUser = await _userRepo.Add(user);
 
@@ -197,28 +172,7 @@ namespace MusicApplicationAPI.Services.UserService
 
         #endregion
 
-        /// <summary>
-        /// Compares two passwords to check if they are the same.
-        /// </summary>
-        /// <param name="encryptedPassword">The encrypted password.</param>
-        /// <param name="userPassword">The stored user password.</param>
-        /// <returns>True if the passwords match, otherwise false.</returns>
 
-        private bool ComparePassword(byte[] encryptedPassword, byte[] userPassword)
-        {
-            if (encryptedPassword.Length != userPassword.Length)
-            {
-                return false;
-            }
-            for (int i = 0; i < encryptedPassword.Length; i++)
-            {
-                if (encryptedPassword[i] != userPassword[i])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
 
     }
 }

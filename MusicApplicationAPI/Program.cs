@@ -111,6 +111,7 @@ namespace MusicApplicationAPI
 
             builder.Services.AddScoped<IEmailSender, EmailSenderService>();
             builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
+            builder.Services.AddScoped<IPasswordService, PasswordService>();
 
             #endregion
 
