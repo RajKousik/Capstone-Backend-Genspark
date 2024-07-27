@@ -19,5 +19,9 @@ namespace MusicApplicationAPI.Interfaces.Service
         Task<PremiumUser> UpgradeUserToPremium(int userId, PremiumRequestDTO premiumRequestDTO);
 
         Task<bool> DowngradePremiumUser(int userId);
+
+        Task<UserRegisterReturnDTO> AddAdmin(UserRegisterDTO adminRegisterDTO);
+
+        Task<UserReturnDTO> GetAdminById(int adminId);
     }
 }

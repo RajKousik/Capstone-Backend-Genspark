@@ -182,35 +182,7 @@ namespace MusicApplicationAPI.Controllers.v1
             }
         }
 
-        /// <summary>
-        /// Retrieves all admin users.
-        /// </summary>
-        /// <returns>A list of all admin users.</returns>
-        [HttpGet("admin")]
-        [Authorize(Roles = "Admin")]
-        [ProducesResponseType(typeof(IEnumerable<UserReturnDTO>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetAllAdminUsers()
-        {
-            try
-            {
-                var result = await _userService.GetAllAdminUsers();
-                return Ok(result);
-            }
-            catch (NoUsersExistsExistsException ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
-                return StatusCode(404, new ErrorModel(404, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
-                return StatusCode(500, new ErrorModel(500, ex.Message));
-            }
-        }
+        
 
         /// <summary>
         /// Deletes a user by their ID.

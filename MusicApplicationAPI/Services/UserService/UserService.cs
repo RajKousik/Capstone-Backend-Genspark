@@ -6,6 +6,9 @@ using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.DTOs.OtherDTO;
+using MusicApplicationAPI.Exceptions.ArtistExceptions;
+using MusicApplicationAPI.Models.DTOs.ArtistDTO;
+using MusicApplicationAPI.Repositories;
 
 namespace MusicApplicationAPI.Services.UserService
 {
@@ -94,6 +97,31 @@ namespace MusicApplicationAPI.Services.UserService
             }
         }
 
+
+        public async Task<UserReturnDTO> GetAdminById(int adminId)
+        {
+            try
+            {
+                var user = await _userRepository.GetById(adminId);
+                if(user.Role != RoleType.Admin)
+                {
+                    throw new NoSuchUserExistException();
+                }
+                var result = _mapper.Map<UserReturnDTO>(user);
+                return result;
+            }
+            catch (NoSuchUserExistException ex)
+            {
+                _logger.LogError(ex, "User not found.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving user by ID.");
+                throw;
+            }
+        }
+
         /// <summary>
         /// Gets a user by email.
         /// </summary>
@@ -119,6 +147,62 @@ namespace MusicApplicationAPI.Services.UserService
             {
                 _logger.LogError(ex, "Error retrieving user by email.");
                 throw;
+            }
+        }
+
+
+        public async Task<UserRegisterReturnDTO> AddAdmin(UserRegisterDTO adminRegisterDTO)
+        {
+            User user;
+            try
+            {
+                var emailExists = await _userRepository.GetUserByEmail(adminRegisterDTO.Email);
+                if (emailExists != null)
+                {
+                    throw new DuplicateEmailException("Email id is already registered");
+                }
+
+                DateTime dateOfBirth = adminRegisterDTO.DOB.ToDateTime(TimeOnly.MinValue);
+
+
+                user = new User()
+                {
+                    Username = adminRegisterDTO.Username,
+                    Email = adminRegisterDTO.Email,
+                    DOB = dateOfBirth,
+                    Role = RoleType.Admin,
+                    Status = "Active",
+                };
+
+                user.PasswordHash = _passwordService.HashPassword(adminRegisterDTO.Password, out byte[] key);
+                user.PasswordHashKey = key;
+
+                var addedUser = await _userRepository.Add(user);
+
+                UserRegisterReturnDTO userRegisterReturnDTO= _mapper.Map<UserRegisterReturnDTO>(addedUser);
+
+                return userRegisterReturnDTO;
+            }
+            catch (UnableToAddUserException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new UnableToAddUserException(ex.Message);
+            }
+            catch (DuplicateEmailException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new DuplicateEmailException(ex.Message);
+            }
+            catch (InvalidPasswordException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new InvalidPasswordException(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                var message = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(message);
             }
         }
 
