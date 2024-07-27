@@ -6,7 +6,6 @@ using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Models.ErrorModels;
-using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using WatchDog;

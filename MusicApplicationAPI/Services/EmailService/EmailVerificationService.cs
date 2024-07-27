@@ -39,7 +39,7 @@ namespace MusicApplicationAPI.Services.EmailService
                 var exisitingEmailVerification = await _emailVerificationRepository.GetByUserId(userId);
                 if (exisitingEmailVerification != null)
                 {
-                    await _emailVerificationRepository.Delete(exisitingEmailVerification.UserId);
+                    await _emailVerificationRepository.Delete(exisitingEmailVerification.Id);
                 }
 
                 var user = await _userRepository.GetById(userId);
