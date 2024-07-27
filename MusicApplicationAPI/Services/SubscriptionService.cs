@@ -25,13 +25,15 @@ namespace MusicApplicationAPI.Services
             var twoDaysBeforeThreshold = today.AddDays(2);
             var oneHourBeforeThreshold = today.AddHours(1);
 
+            
+
             var usersWithExpiringSubscriptions = await _premiumUserRepository.GetUsersWithExpiringSubscriptions(twoDaysBeforeThreshold, oneHourBeforeThreshold);
 
+                                    
             foreach (var premiumUser in usersWithExpiringSubscriptions)
             {
                 var user = await _userRepository.GetById(premiumUser.UserId);
-                Console.WriteLine("Yes working");
-                // Send email if 2 days before end date
+                                // Send email if 2 days before end date
                 if (premiumUser.EndDate <= twoDaysBeforeThreshold && premiumUser.EndDate > DateTime.UtcNow && premiumUser.LastNotifiedTwoDaysBefore == null)
                 {
                     await _emailSenderService.SendEmailAsync(
@@ -41,9 +43,7 @@ namespace MusicApplicationAPI.Services
                     );
                     premiumUser.LastNotifiedTwoDaysBefore = DateTime.UtcNow;
                 }
-                Console.WriteLine("No");
-                Console.WriteLine(premiumUser.EndDate <= oneHourBeforeThreshold && premiumUser.EndDate > DateTime.UtcNow && premiumUser.LastNotifiedOneHourBefore == null);
-                // Send email if 1 hour before end date
+                                                // Send email if 1 hour before end date
                 if (premiumUser.EndDate <= oneHourBeforeThreshold && premiumUser.EndDate > DateTime.UtcNow && premiumUser.LastNotifiedOneHourBefore == null)
                 {
                     
@@ -115,8 +115,7 @@ namespace MusicApplicationAPI.Services
         public string GetExpiryInTwoDaysEmailTemplate(User user, DateTime endDate)
         {
             var daysRemaining = (endDate - DateTime.UtcNow).Days;
-
-            return $@"
+                        return $@"
                 <!DOCTYPE html>
                 <html>
                 <head>

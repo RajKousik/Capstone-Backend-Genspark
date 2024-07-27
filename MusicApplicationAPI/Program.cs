@@ -9,7 +9,6 @@ using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
 using MusicApplicationAPI.Interfaces.Service.TokenService;
 using MusicApplicationAPI.Mappers;
-using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Repositories;
 using MusicApplicationAPI.Services.TokenService;
@@ -147,7 +146,7 @@ namespace MusicApplicationAPI
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                    options.TokenValidationParameters = new TokenValidationParameters()
                     {
                         ValidateIssuer = false,
                         ValidateAudience = false,
@@ -155,6 +154,18 @@ namespace MusicApplicationAPI
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey:JWT"])),
                         ClockSkew = TimeSpan.Zero   // to prevent JWT's additional 5mins expiry time
+                    };
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var token = context.Request.Cookies["vibe-vault"];
+                            if (!string.IsNullOrEmpty(token))
+                            {
+                                context.Token = token;
+                            }
+                            return Task.CompletedTask;
+                        }
                     };
 
                 });
@@ -193,6 +204,10 @@ namespace MusicApplicationAPI
             var app = builder.Build();
             #endregion
 
+            #region Hangfire Configuration
+
+            var hangfireCredentials = builder.Configuration.GetSection("Hangfire");
+
             app.UseHangfireDashboard("/hangfire/dashboard", new DashboardOptions
             {
                 DashboardTitle = "Vibe Vault - Job Dashboard",
@@ -202,17 +217,20 @@ namespace MusicApplicationAPI
                 {
                     new HangfireCustomBasicAuthenticationFilter
                     {
-                        User = "admin",
-                        Pass = "admin"
+                        User = hangfireCredentials["username"],
+                        Pass = hangfireCredentials["password"]
                     }
                 }
             });
 
+            #endregion
 
+            #region CRON JOB
             RecurringJob.AddOrUpdate<SubscriptionService>(
                 "check-expiring-subscriptions",
                 service => service.CheckAndNotifyExpiringSubscriptions(),
-                Cron.Minutely); // Runs every hour
+                Cron.Hourly); // Runs every hour
+            #endregion 
 
             #region Swagger Configurations
             // Configure the HTTP request pipeline.
@@ -244,7 +262,9 @@ namespace MusicApplicationAPI
             });
             #endregion
 
+            #region Run
             app.Run();
+            #endregion
         }
     }
 

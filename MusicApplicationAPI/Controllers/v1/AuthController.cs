@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MusicApplicationAPI.Exceptions.EmailExceptions;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Models.ErrorModels;
+using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using WatchDog;
 
 namespace MusicApplicationAPI.Controllers.v1
@@ -57,6 +60,14 @@ namespace MusicApplicationAPI.Controllers.v1
             try
             {
                 var result = await _authLoginService.Login(userLoginDTO);
+                Response.Cookies.Append("vibe-vault", result.Token, new CookieOptions
+                {
+                    Secure = true,
+                    HttpOnly = true,
+                    SameSite = SameSiteMode.None,
+                    MaxAge = TimeSpan.FromHours(8),
+                    Expires = DateTimeOffset.UtcNow.AddHours(8)
+                });
                 return Ok(result);
             }
             catch (UnauthorizedUserException ex)
@@ -134,7 +145,37 @@ namespace MusicApplicationAPI.Controllers.v1
             }
         }
 
-
+        /// <summary>
+        /// logsout a user.
+        /// </summary>
+        /// <returns>The Status Code with message.</returns>
+        [Authorize]
+        [HttpPost("logout")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public ActionResult Logout()
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.Name);
+                if (Request.Cookies["vibe-vault"] != null)
+                {
+                    Response.Cookies.Delete("vibe-vault", new CookieOptions
+                    {
+                        HttpOnly = true,
+                        SameSite = SameSiteMode.None,
+                        Secure = true,
+                        Expires = DateTimeOffset.UtcNow.AddMinutes(-1)
+                    });
+                }
+                WatchLogger.Log($"{userId} Logged Out!");
+                return Ok(new { Message = "Logged out successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
         [HttpPost("verify/generate-verification-code")]
         [ProducesResponseType(StatusCodes.Status200OK)]
