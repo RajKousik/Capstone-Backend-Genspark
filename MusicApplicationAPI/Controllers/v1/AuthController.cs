@@ -78,25 +78,25 @@ namespace MusicApplicationAPI.Controllers.v1
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(401, new ErrorModel(401, $"{ex.Message}"));
+                return StatusCode(401, new ErrorModel(401, ex.Message));
             }
             catch (EmailNotVerifiedException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(401, new ErrorModel(401, $"{ex.Message}"));
+                return StatusCode(401, new ErrorModel(401, ex.Message));
             }
             catch (PremiumSubscriptionExpiredException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(401, new ErrorModel(401, $"{ex.Message}"));
+                return StatusCode(401, new ErrorModel(401, ex.Message));
             }
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
@@ -127,37 +127,37 @@ namespace MusicApplicationAPI.Controllers.v1
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(409, new ErrorModel(409, $"{ex.Message}"));
+                return StatusCode(409, new ErrorModel(409, ex.Message));
             }
             catch (InvalidPasswordException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(409, new ErrorModel(409, $"{ex.Message}"));
+                return StatusCode(409, new ErrorModel(409, ex.Message));
             }
             catch (UnableToAddUserException ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(500, new ErrorModel(409, $"{ex.Message}"));
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
         /// <summary>
-        /// logsout a user.
+        /// Logs out a user.
         /// </summary>
-        /// <returns>The Status Code with message.</returns>
+        /// <returns>The status code with message.</returns>
         [Authorize]
         [HttpPost("logout")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult Logout()
+        public IActionResult Logout()
         {
             try
             {
@@ -182,9 +182,9 @@ namespace MusicApplicationAPI.Controllers.v1
         }
 
         /// <summary>
-        /// Logs in a user.
+        /// Logs in an artist.
         /// </summary>
-        /// <param name="userLoginDTO">The user login data.</param>
+        /// <param name="artistLoginDTO">The artist login data.</param>
         /// <returns>The login result including the token.</returns>
         [HttpPost("artist/login")]
         [ProducesResponseType(typeof(ArtistLoginReturnDTO), StatusCodes.Status200OK)]
@@ -215,18 +215,21 @@ namespace MusicApplicationAPI.Controllers.v1
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(401, new ErrorModel(401, $"{ex.Message}"));
+                return StatusCode(401, new ErrorModel(401, ex.Message));
             }
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
-
-
+        /// <summary>
+        /// Registers a new artist.
+        /// </summary>
+        /// <param name="artistAddDTO">The artist registration data.</param>
+        /// <returns>The registration result.</returns>
         [HttpPost("artist/register")]
         [ProducesResponseType(typeof(ArtistReturnDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
@@ -248,40 +251,24 @@ namespace MusicApplicationAPI.Controllers.v1
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(409, new ErrorModel(409, $"{ex.Message}"));
-            }
-            catch (ArtistNameAlreadyExists ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
-                return StatusCode(409, new ErrorModel(409, $"{ex.Message}"));
-            }
-            catch (InvalidPasswordException ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
-                return StatusCode(409, new ErrorModel(409, $"{ex.Message}"));
-            }
-            catch (UnableToAddArtistException ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
-                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
+                return StatusCode(409, new ErrorModel(409, ex.Message));
             }
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
-                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
 
+        /// <summary>
+        /// Generates an email verification code for a user.
+        /// </summary>
+        /// <param name="userId">The user's ID.</param>
+        /// <returns>The status code with a success message.</returns>
         [HttpPost("verify/generate-verification-code")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GenerateVerificationCode(int userId)
         {
             try
@@ -291,17 +278,23 @@ namespace MusicApplicationAPI.Controllers.v1
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message ));
             }
         }
-        
+
+        /// <summary>
+        /// Verifies the email verification code.
+        /// </summary>
+        /// <param name="userId">The user's ID.</param>
+        /// <param name="verificationCode">The email verification code.</param>
+        /// <returns>The status code with a success message.</returns>
         [HttpPost("verify/verify-code/{verificationCode}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> VerificationCode(int userId, [RegularExpression(@"^\d{6}$")] string verificationCode)
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> VerifyVerifiactionCode(int userId, [RegularExpression(@"^\d{6}$")] string verificationCode)
         {
             try
             {
@@ -309,13 +302,29 @@ namespace MusicApplicationAPI.Controllers.v1
 
                 return Ok(new { message = "Verified successfully." });
             }
+            catch (EmailVerificationNotFoundException ex)
+{
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
+            }
+            catch (InvalidEmailVerificationCodeException ex)
+{
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(400, new ErrorModel(400, $"{ex.Message}"));
+            }
+            catch (VerificationExpiredException ex)
+{
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(400, new ErrorModel(400, $"{ex.Message}"));
+            }
             catch (Exception ex)
             {
-                if (ex is EmailVerificationNotFoundException || ex is InvalidEmailVerificationCodeException || ex is VerificationExpiredException)
-                {
-                    return BadRequest(new { message = ex.Message });
-                }
-                return StatusCode(500, new { error = ex.Message });
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
             }
         }
 

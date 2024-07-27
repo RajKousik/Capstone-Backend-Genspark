@@ -42,6 +42,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="userId">The ID of the user to be updated.</param>
         /// <returns>The updated user data.</returns>
         [HttpPut("{userId}")]
+        [Authorize]
         [ProducesResponseType(typeof(UserReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -84,6 +85,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="userId">The ID of the user to retrieve.</param>
         /// <returns>The user data.</returns>
         [HttpGet("{userId}")]
+        [Authorize]
         [ProducesResponseType(typeof(UserReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -119,6 +121,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="email">The email of the user to retrieve.</param>
         /// <returns>The user data.</returns>
         [HttpGet("email")]
+        [Authorize]
         [ProducesResponseType(typeof(UserReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -184,6 +187,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// </summary>
         /// <returns>A list of all admin users.</returns>
         [HttpGet("admin")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(IEnumerable<UserReturnDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -214,6 +218,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="userId">The ID of the user to delete.</param>
         /// <returns>A message indicating the result of the deletion.</returns>
         [HttpDelete("{userId}")]
+        [Authorize]
         [ProducesResponseType(typeof(UserReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -249,9 +254,18 @@ namespace MusicApplicationAPI.Controllers.v1
                 return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
-
-        [Authorize]
+        /// <summary>
+        /// Changes the password for a user.
+        /// </summary>
+        /// <param name="requestDTO">The password change request data.</param>
+        /// <param name="userId">The ID of the user whose password is being changed.</param>
+        /// <returns>A message indicating the result of the password change.</returns>
         [HttpPut("change-password")]
+        [Authorize]
+        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDTO requestDTO, int userId)
         {
             if (!ModelState.IsValid)
@@ -292,8 +306,17 @@ namespace MusicApplicationAPI.Controllers.v1
             }
         }
 
+        /// <summary>
+        /// Upgrades a user to Premium status.
+        /// </summary>
+        /// <param name="userId">The ID of the user to upgrade.</param>
+        /// <param name="premiumRequestDTO">The details for upgrading to Premium.</param>
+        /// <returns>An action result indicating success or failure.</returns>
         [Authorize]
         [HttpPut("upgrade-to-premium")]
+        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpgradeToPremium(int userId, [FromBody] PremiumRequestDTO premiumRequestDTO)
         {
             try
@@ -321,7 +344,6 @@ namespace MusicApplicationAPI.Controllers.v1
             }
         }
 
-
         /// <summary>
         /// Downgrades a premium user to a normal user.
         /// </summary>
@@ -329,6 +351,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <returns>An action result indicating success or failure.</returns>
         [Authorize]
         [HttpPost("downgrade")]
+        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DowngradePremiumUser(int userId)
         {
             try

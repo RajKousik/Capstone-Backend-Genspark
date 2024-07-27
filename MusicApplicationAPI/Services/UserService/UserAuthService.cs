@@ -226,7 +226,7 @@ namespace MusicApplicationAPI.Services.UserService
                 Role = user.Role,
                 Username = user.Username,
                 IsPremiumExpired = false,
-                Message = string.Empty
+                Message = "Logged in"
             };
         }
 

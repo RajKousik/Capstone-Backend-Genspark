@@ -7,7 +7,9 @@ using MusicApplicationAPI.Exceptions.SongExceptions;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Exceptions.PlaylistExceptions;
 using WatchDog;
-using MusicApplicationAPI.Models.DbModels;
+using Microsoft.AspNetCore.Authorization;
+using MusicApplicationAPI.Models.DTOs.SongDTO;
+using MusicApplicationAPI.Models.DTOs.PlaylistDTO;
 
 namespace MusicApplicationAPI.Controllers.v1
 {
@@ -15,21 +17,31 @@ namespace MusicApplicationAPI.Controllers.v1
     [Route("api/v1/favorites")]
     public class FavoritesController : ControllerBase
     {
+        #region Private Fields
         private readonly IFavoriteService _favoriteService;
         private readonly ILogger<FavoritesController> _logger;
+        #endregion
 
+        #region Constructor
         public FavoritesController(IFavoriteService favoriteService, ILogger<FavoritesController> logger)
         {
             _favoriteService = favoriteService;
             _logger = logger;
         }
+        #endregion
 
+        #region Public Endpoints
         /// <summary>
         /// Marks a song as a favorite for a user.
         /// </summary>
-        /// <param name="favoriteDTO">The favorite data transfer object containing user and song information.</param>
+        /// <param name="favoriteSongDTO">The favorite data transfer object containing user and song information.</param>
         /// <returns>A status indicating the result of the operation.</returns>
         [HttpPost("song")]
+        [Authorize]
+        [ProducesResponseType(typeof(string),StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> MarkSongAsFavorite([FromBody] FavoriteSongDTO favoriteSongDTO)
         {
             try
@@ -72,9 +84,14 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <summary>
         /// Removes a song from a user's favorites.
         /// </summary>
-        /// <param name="favoriteDTO">The favorite data transfer object containing user and song information.</param>
+        /// <param name="favoriteSongDTO">The favorite data transfer object containing user and song information.</param>
         /// <returns>A status indicating the result of the operation.</returns>
         [HttpDelete("song")]
+        [Authorize]
+        [ProducesResponseType(typeof(string),StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RemoveSongFromFavorites([FromBody] FavoriteSongDTO favoriteSongDTO)
         {
             try
@@ -117,10 +134,14 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <summary>
         /// Marks a playlist as a favorite for a user.
         /// </summary>
-        /// <param name="userId">The ID of the user.</param>
-        /// <param name="playlistId">The ID of the playlist.</param>
+        /// <param name="favoritePlaylistDTO">The favorite data transfer object containing user and playlist information.</param>
         /// <returns>A status indicating the result of the operation.</returns>
         [HttpPost("playlist")]
+        [Authorize]
+        [ProducesResponseType(typeof(string),StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> MarkPlaylistAsFavorite([FromBody] FavoritePlaylistDTO favoritePlaylistDTO)
         {
             try
@@ -163,10 +184,14 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <summary>
         /// Removes a playlist from a user's favorites.
         /// </summary>
-        /// <param name="userId">The ID of the user.</param>
-        /// <param name="playlistId">The ID of the playlist.</param>
+        /// <param name="favoritePlaylistDTO">The favorite data transfer object containing user and playlist information.</param>
         /// <returns>A status indicating the result of the operation.</returns>
         [HttpDelete("playlist")]
+        [Authorize]
+        [ProducesResponseType(typeof(string),StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RemovePlaylistFromFavorites([FromBody] FavoritePlaylistDTO favoritePlaylistDTO)
         {
             try
@@ -212,6 +237,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="userId">The ID of the user.</param>
         /// <returns>A list of favorite songs for the specified user.</returns>
         [HttpGet("songs")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<SongReturnDTO>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetFavoriteSongsByUserId([FromQuery] int userId)
         {
             try
@@ -245,6 +274,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="userId">The ID of the user.</param>
         /// <returns>A list of favorite playlists for the specified user.</returns>
         [HttpGet("playlists")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<PlaylistReturnDTO>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel),StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetFavoritePlaylistsByUserId([FromQuery] int userId)
         {
             try
@@ -271,5 +304,7 @@ namespace MusicApplicationAPI.Controllers.v1
                 return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
+
+        #endregion
     }
 }

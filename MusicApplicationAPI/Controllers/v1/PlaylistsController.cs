@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MusicApplicationAPI.Exceptions.PlaylistExceptions;
 using MusicApplicationAPI.Exceptions.UserExceptions;
@@ -13,21 +14,31 @@ namespace MusicApplicationAPI.Controllers.v1
     [ApiController]
     public class PlaylistsController : ControllerBase
     {
+        #region Private Fields
         private readonly IPlaylistService _playlistService;
         private readonly ILogger<PlaylistsController> _logger;
+        #endregion
 
+        #region Constructor
         public PlaylistsController(IPlaylistService playlistService, ILogger<PlaylistsController> logger)
         {
             _playlistService = playlistService;
             _logger = logger;
         }
+        #endregion
 
+        #region Public Endpoints
         /// <summary>
         /// Adds a new playlist.
         /// </summary>
         /// <param name="playlistCreateDTO">The playlist data to be added.</param>
         /// <returns>The added playlist data.</returns>
         [HttpPost]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddPlaylist([FromBody] PlaylistAddDTO playlistCreateDTO)
         {
             try
@@ -56,7 +67,7 @@ namespace MusicApplicationAPI.Controllers.v1
             catch (Exception ex)
             {
                 WatchLogger.Log(ex.Message);
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, ex.Message);
                 return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
@@ -68,6 +79,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="playlistUpdateDTO">The updated playlist data.</param>
         /// <returns>The updated playlist data.</returns>
         [HttpPut("{playlistId}")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdatePlaylist(int playlistId, [FromBody] PlaylistUpdateDTO playlistUpdateDTO)
         {
             try
@@ -101,6 +116,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="playlistId">The ID of the playlist to be retrieved.</param>
         /// <returns>The playlist data.</returns>
         [HttpGet("{playlistId}")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPlaylistById(int playlistId)
         {
             try
@@ -127,6 +146,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// </summary>
         /// <returns>A list of all playlists.</returns>
         [HttpGet]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllPlaylists()
         {
             try
@@ -154,6 +177,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="playlistId">The ID of the playlist to be deleted.</param>
         /// <returns>The deleted playlist data.</returns>
         [HttpDelete("{playlistId}")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeletePlaylist(int playlistId)
         {
             try
@@ -187,6 +214,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="userId">The user ID for which to retrieve playlists.</param>
         /// <returns>A list of playlists for the specified user.</returns>
         [HttpGet("user/{userId}")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPlaylistsByUserId(int userId)
         {
             try
@@ -219,6 +250,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// </summary>
         /// <returns>A list of public playlists.</returns>
         [HttpGet("public")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPublicPlaylists()
         {
             try
@@ -239,5 +274,6 @@ namespace MusicApplicationAPI.Controllers.v1
                 return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
+        #endregion
     }
 }

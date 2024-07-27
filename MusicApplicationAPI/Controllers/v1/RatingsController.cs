@@ -6,6 +6,7 @@ using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DTOs.RatingDTO;
 using WatchDog;
 using MusicApplicationAPI.Models.ErrorModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MusicApplicationAPI.Controllers.v1
 {
@@ -13,8 +14,14 @@ namespace MusicApplicationAPI.Controllers.v1
     [Route("api/v1/ratings")]
     public class RatingsController : ControllerBase
     {
+        #region Private Fields
+
         private readonly IRatingService _ratingService;
         private readonly ILogger<RatingsController> _logger;
+
+        #endregion
+
+        #region Constructor
 
         public RatingsController(IRatingService ratingService, ILogger<RatingsController> logger)
         {
@@ -22,12 +29,21 @@ namespace MusicApplicationAPI.Controllers.v1
             _logger = logger;
         }
 
+        #endregion
+
+        #region Public Endpoints
+
         /// <summary>
         /// Adds a rating for a song.
         /// </summary>
         /// <param name="ratingDTO">The rating details.</param>
         /// <returns>The added rating details.</returns>
         [HttpPost]
+        [Authorize]
+        [ProducesResponseType(typeof(RatingDTO), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 404)]
+        [ProducesResponseType(typeof(ErrorModel), 409)]
+        [ProducesResponseType(typeof(ErrorModel), 500)]
         public async Task<IActionResult> AddRating([FromBody] RatingDTO ratingDTO)
         {
             try
@@ -73,6 +89,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="ratingDTO">The updated rating details.</param>
         /// <returns>The updated rating details.</returns>
         [HttpPut]
+        [Authorize]
+        [ProducesResponseType(typeof(RatingDTO), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 404)]
+        [ProducesResponseType(typeof(ErrorModel), 500)]
         public async Task<IActionResult> UpdateRating([FromBody] RatingDTO ratingDTO)
         {
             try
@@ -118,6 +138,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="songId">The ID of the song.</param>
         /// <returns>A list of ratings for the specified song.</returns>
         [HttpGet("song/{songId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<RatingDTO>), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 404)]
+        [ProducesResponseType(typeof(ErrorModel), 500)]
         public async Task<IActionResult> GetRatingsBySongId(int songId)
         {
             try
@@ -151,6 +175,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="userId">The ID of the user.</param>
         /// <returns>A list of ratings given by the specified user.</returns>
         [HttpGet("user/{userId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<RatingDTO>), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 404)]
+        [ProducesResponseType(typeof(ErrorModel), 500)]
         public async Task<IActionResult> GetRatingsByUserId(int userId)
         {
             try
@@ -184,6 +212,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="userId">The ID of the user.</param>
         /// <param name="songId">The ID of the song.</param>
         [HttpDelete]
+        [Authorize]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 404)]
+        [ProducesResponseType(typeof(ErrorModel), 500)]
         public async Task<IActionResult> DeleteRating([FromQuery] int userId, [FromQuery] int songId)
         {
             try
@@ -228,6 +260,9 @@ namespace MusicApplicationAPI.Controllers.v1
         /// </summary>
         /// <returns>A list of top-rated songs with their average ratings.</returns>
         [HttpGet("top-rated")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<SongRatingDTO>), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 500)]
         public async Task<IActionResult> TopRatedSongs()
         {
             try
@@ -248,6 +283,7 @@ namespace MusicApplicationAPI.Controllers.v1
                 return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
+
+        #endregion
     }
 }
-

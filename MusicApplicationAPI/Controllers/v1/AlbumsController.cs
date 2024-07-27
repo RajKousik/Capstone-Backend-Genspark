@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicApplicationAPI.Exceptions.AlbumExceptions;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
@@ -13,16 +14,22 @@ namespace MusicApplicationAPI.Controllers.v1
     [Route("api/v1/albums")]
     public class AlbumsController : ControllerBase
     {
+        #region Private Fields
         private readonly IAlbumService _albumService;
         private readonly IMapper _mapper;
         private readonly ILogger<AlbumsController> _logger;
+        #endregion
 
+        #region Constructor
         public AlbumsController(IAlbumService albumService, IMapper mapper, ILogger<AlbumsController> logger)
         {
             _albumService = albumService;
             _mapper = mapper;
             _logger = logger;
         }
+        #endregion
+
+        #region Public Endpoints 
 
         /// <summary>
         /// Adds a new album.
@@ -30,6 +37,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="albumAddDTO">The album data transfer object containing album details.</param>
         /// <returns>The added album data transfer object.</returns>
         [HttpPost]
+        [Authorize]
+        [ProducesResponseType(typeof(AlbumReturnDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddAlbum([FromBody] AlbumAddDTO albumAddDTO)
         {
             try
@@ -64,6 +75,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="albumUpdateDTO">The album data transfer object containing updated album details.</param>
         /// <returns>The updated album data transfer object.</returns>
         [HttpPut("{albumId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(AlbumReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateAlbum(int albumId, [FromBody] AlbumUpdateDTO albumUpdateDTO)
         {
             try
@@ -97,6 +112,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="albumId">The ID of the album to retrieve.</param>
         /// <returns>The album data transfer object.</returns>
         [HttpGet("{albumId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(AlbumReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAlbumById(int albumId)
         {
             try
@@ -123,6 +142,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// </summary>
         /// <returns>A list of album data transfer objects.</returns>
         [HttpGet]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<AlbumReturnDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllAlbums()
         {
             try
@@ -150,6 +173,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="artistId">The artist ID to filter albums by.</param>
         /// <returns>A list of album data transfer objects.</returns>
         [HttpGet("artist/{artistId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<AlbumReturnDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAlbumsByArtistId(int artistId)
         {
             try
@@ -183,6 +210,10 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="albumId">The ID of the album to delete.</param>
         /// <returns>The deleted album data transfer object.</returns>
         [HttpDelete("{albumId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(AlbumReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAlbum(int albumId)
         {
             try
@@ -209,5 +240,8 @@ namespace MusicApplicationAPI.Controllers.v1
                 return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
+
+        #endregion
+
     }
 }
