@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Exceptions.EmailExceptions;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
+using MusicApplicationAPI.Models.DTOs.ArtistDTO;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Models.ErrorModels;
+using MusicApplicationAPI.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using WatchDog;
@@ -23,18 +26,20 @@ namespace MusicApplicationAPI.Controllers.v1
         private readonly IAuthLoginService<UserLoginReturnDTO, UserLoginDTO> _authLoginService;
         private readonly IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO> _authRegisterService;
         private readonly ILogger<AuthController> _logger;
+        private readonly IArtistService _artistService;
         #endregion
 
 
         #region Constructor
 
-        public AuthController(ILogger<AuthController> logger, IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO> authRegisterService, IAuthLoginService<UserLoginReturnDTO, UserLoginDTO> authLoginService, IEmailSender emailSenderService, IEmailVerificationService emailVerificationService)
+        public AuthController(ILogger<AuthController> logger, IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO> authRegisterService, IAuthLoginService<UserLoginReturnDTO, UserLoginDTO> authLoginService, IEmailSender emailSenderService, IEmailVerificationService emailVerificationService, IArtistService artistService)
         {
             _logger = logger;
             _authRegisterService = authRegisterService;
             _authLoginService = authLoginService;
             _emailSenderService = emailSenderService;
             _emailVerificationService = emailVerificationService;
+            _artistService = artistService;
         }
 
         #endregion
@@ -44,7 +49,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// </summary>
         /// <param name="userLoginDTO">The user login data.</param>
         /// <returns>The login result including the token.</returns>
-        [HttpPost("login")]
+        [HttpPost("user/login")]
         [ProducesResponseType(typeof(UserLoginReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
@@ -100,7 +105,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// </summary>
         /// <param name="userRegisterDTO">The user registration data.</param>
         /// <returns>The registration result.</returns>
-        [HttpPost("register")]
+        [HttpPost("user/register")]
         [ProducesResponseType(typeof(UserRegisterReturnDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status409Conflict)]
@@ -150,8 +155,8 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <returns>The Status Code with message.</returns>
         [Authorize]
         [HttpPost("logout")]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult Logout()
         {
             try
@@ -172,7 +177,102 @@ namespace MusicApplicationAPI.Controllers.v1
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Logs in a user.
+        /// </summary>
+        /// <param name="userLoginDTO">The user login data.</param>
+        /// <returns>The login result including the token.</returns>
+        [HttpPost("artist/login")]
+        [ProducesResponseType(typeof(ArtistLoginReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ArtistLogin([FromBody] ArtistLoginDTO artistLoginDTO)
+        {
+            if (artistLoginDTO == null)
+            {
+                return BadRequest(new ErrorModel(400, "Invalid login data."));
+            }
+
+            try
+            {
+                var result = await _artistService.Login(artistLoginDTO);
+                Response.Cookies.Append("vibe-vault", result.Token, new CookieOptions
+                {
+                    Secure = true,
+                    HttpOnly = true,
+                    SameSite = SameSiteMode.None,
+                    MaxAge = TimeSpan.FromHours(8),
+                    Expires = DateTimeOffset.UtcNow.AddHours(8)
+                });
+                return Ok(result);
+            }
+            catch (UnauthorizedUserException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(401, new ErrorModel(401, $"{ex.Message}"));
+            }
+            catch (Exception ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
+            }
+        }
+
+
+
+        [HttpPost("artist/register")]
+        [ProducesResponseType(typeof(ArtistReturnDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ArtistRegister([FromBody] ArtistAddDTO artistAddDTO)
+        {
+            if (artistAddDTO == null)
+            {
+                return BadRequest(new ErrorModel(400, "Invalid registration data."));
+            }
+
+            try
+            {
+                var registeredArtist = await _artistService.Register(artistAddDTO);
+                return StatusCode(201, registeredArtist);
+            }
+            catch (DuplicateEmailException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(409, new ErrorModel(409, $"{ex.Message}"));
+            }
+            catch (ArtistNameAlreadyExists ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(409, new ErrorModel(409, $"{ex.Message}"));
+            }
+            catch (InvalidPasswordException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(409, new ErrorModel(409, $"{ex.Message}"));
+            }
+            catch (UnableToAddArtistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
+            }
+            catch (Exception ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
             }
         }
 

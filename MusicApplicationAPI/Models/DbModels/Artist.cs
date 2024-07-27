@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MusicApplicationAPI.Models.DbModels
 {
@@ -12,6 +13,21 @@ namespace MusicApplicationAPI.Models.DbModels
         public string Name { get; set; }
 
         public string Bio { get; set; }
+
+        [Required]
+        [EmailAddress]
+        [MaxLength(100)]
+        public string Email { get; set; }
+
+        [Required]
+        [JsonIgnore]
+        public byte[] PasswordHash { get; set; }
+
+        [Required]
+        [JsonIgnore]
+        public byte[] PasswordHashKey { get; set; }
+
+        public string? Status { get; set; }
 
         [Url]
         public string ImageUrl { get; set; }

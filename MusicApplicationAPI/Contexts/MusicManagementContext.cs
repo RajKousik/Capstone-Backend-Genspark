@@ -99,8 +99,14 @@ namespace MusicApplicationAPI.Contexts
 
             #region Data Seeding
 
+            var hmac = new HMACSHA512();
+
             modelBuilder.Entity<Artist>().HasData(
-                new Artist { ArtistId = 1, Name = "Artist One", Bio = "Bio of Artist One", ImageUrl = "http://example.com/artist1.jpg" }
+                new Artist { ArtistId = 1, Name = "Artist One", Bio = "Bio of Artist One", ImageUrl = "http://example.com/artist1.jpg", Email="artist1@gmail.com",
+                    PasswordHashKey = hmac.Key,
+                    PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Artist1@123")),
+                    Status="Active"
+                }
             );
 
             modelBuilder.Entity<Album>().HasData(
@@ -111,7 +117,6 @@ namespace MusicApplicationAPI.Contexts
                 new Song { SongId = 1, Title = "Song One", ArtistId = 1, AlbumId = 1, Genre = GenreType.Pop, Duration = 120, ReleaseDate = new DateTime(2020, 1, 1), Url = "http://example.com/song1.mp3" }
             );
 
-            var hmac = new HMACSHA512();
 
             modelBuilder.Entity<User>().HasData(
                 new User()

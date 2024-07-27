@@ -5,6 +5,7 @@ using MusicApplicationAPI.Models.Enums;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Models.DbModels;
+using MusicApplicationAPI.Models.DTOs.OtherDTO;
 
 namespace MusicApplicationAPI.Services.UserService
 {
@@ -201,11 +202,11 @@ namespace MusicApplicationAPI.Services.UserService
         }
 
 
-        public async Task<bool> ChangePassword(ChangePasswordRequestDTO requestDTO)
+        public async Task<bool> ChangePassword(ChangePasswordRequestDTO requestDTO, int userId)
         {
             try
             {
-                var user = await _userRepository.GetById(requestDTO.UserId);
+                var user = await _userRepository.GetById(userId);
 
                 if (user == null)
                     throw new NoSuchUserExistException("User not found.");

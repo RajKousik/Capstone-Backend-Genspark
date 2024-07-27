@@ -7,5 +7,7 @@ namespace MusicApplicationAPI.Interfaces.Service.TokenService
         public string GenerateToken(User user);
 
         public string GenerateShortLivedToken(User user);
+
+        public string GenerateArtistToken(Artist artist);
     }
 }

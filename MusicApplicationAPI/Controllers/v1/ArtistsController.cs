@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Exceptions.SongExceptions;
+using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DTOs.ArtistDTO;
+using MusicApplicationAPI.Models.DTOs.OtherDTO;
 using MusicApplicationAPI.Models.ErrorModels;
+using MusicApplicationAPI.Services.UserService;
 using WatchDog;
 
 namespace MusicApplicationAPI.Controllers.v1
@@ -26,27 +30,27 @@ namespace MusicApplicationAPI.Controllers.v1
         /// </summary>
         /// <param name="artistAddDTO">The artist data to add.</param>
         /// <returns>The added artist as a DTO.</returns>
-        [HttpPost]
-        public async Task<IActionResult> AddArtist([FromBody] ArtistAddDTO artistAddDTO)
-        {
-            try
-            {
-                var addedArtist = await _artistService.AddArtist(artistAddDTO);
-                return CreatedAtAction(nameof(GetArtistById), new { artistId = addedArtist.ArtistId }, addedArtist);
-            }
-            catch (UnableToAddArtistException ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex, ex.Message);
-                return StatusCode(500, new ErrorModel(500, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                WatchLogger.Log(ex.Message);
-                _logger.LogError(ex, ex.Message);
-                return StatusCode(500, new ErrorModel(500, ex.Message));
-            }
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> AddArtist([FromBody] ArtistAddDTO artistAddDTO)
+        //{
+        //    try
+        //    {
+        //        var addedArtist = await _artistService.AddArtist(artistAddDTO);
+        //        return CreatedAtAction(nameof(GetArtistById), new { artistId = addedArtist.ArtistId }, addedArtist);
+        //    }
+        //    catch (UnableToAddArtistException ex)
+        //    {
+        //        WatchLogger.Log(ex.Message);
+        //        _logger.LogError(ex, ex.Message);
+        //        return StatusCode(500, new ErrorModel(500, ex.Message));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        WatchLogger.Log(ex.Message);
+        //        _logger.LogError(ex, ex.Message);
+        //        return StatusCode(500, new ErrorModel(500, ex.Message));
+        //    }
+        //}
 
         /// <summary>
         /// Updates an existing artist.
@@ -131,6 +135,50 @@ namespace MusicApplicationAPI.Controllers.v1
             {
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+
+
+        [Authorize]
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDTO requestDTO, int artistId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var result = await _artistService.ChangePassword(requestDTO, artistId);
+                if (result)
+                    return Ok(new { message = "Password changed successfully." });
+                else
+                    return BadRequest(new { message = "Current password is incorrect." });
+            }
+            catch (NoSuchArtistExistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (InvalidPasswordException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(400, new ErrorModel(400, ex.Message));
+            }
+            catch (UnableToUpdateArtistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                // Log exception details here
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
                 return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }

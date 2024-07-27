@@ -12,6 +12,12 @@ using MusicApplicationAPI.Models.DTOs.ArtistDTO;
 using MusicApplicationAPI.Models.DTOs.SongDTO;
 using MusicApplicationAPI.Repositories;
 using MusicApplicationAPI.Exceptions.SongExceptions;
+using MusicApplicationAPI.Exceptions.UserExceptions;
+using MusicApplicationAPI.Models.Enums;
+using MusicApplicationAPI.Services.UserService;
+using MusicApplicationAPI.Exceptions.EmailExceptions;
+using MusicApplicationAPI.Interfaces.Service.TokenService;
+using MusicApplicationAPI.Models.DTOs.OtherDTO;
 
 namespace MusicApplicationAPI.Services
 {
@@ -19,15 +25,19 @@ namespace MusicApplicationAPI.Services
     {
         private readonly IArtistRepository _artistRepository;
         private readonly ISongRepository _songRepository;
+        private readonly IPasswordService _passwordService;
         private readonly IMapper _mapper;
+        private readonly ITokenService _tokenService;
         private readonly ILogger<ArtistService> _logger;
 
-        public ArtistService(IArtistRepository artistRepository, ISongRepository songRepository, IMapper mapper, ILogger<ArtistService> logger)
+        public ArtistService(IArtistRepository artistRepository, ISongRepository songRepository, IMapper mapper, ILogger<ArtistService> logger, IPasswordService passwordService, ITokenService tokenService)
         {
             _artistRepository = artistRepository;
             _songRepository = songRepository;
             _mapper = mapper;
             _logger = logger;
+            _passwordService = passwordService;
+            _tokenService = tokenService;
         }
 
         /// <summary>
@@ -53,6 +63,105 @@ namespace MusicApplicationAPI.Services
             {
                 _logger.LogError(ex, "Error adding artist.");
                 throw new UnableToAddArtistException("Unable to add artist.");
+            }
+        }
+
+        public async Task<ArtistLoginReturnDTO> Login(ArtistLoginDTO artistLoginDTO)
+        {
+            try
+            {
+                var artistInDB = await _artistRepository.GetArtistByEmail(artistLoginDTO.Email);
+                ValidateArtistCredentials(artistLoginDTO.Password, artistInDB);
+                EnsureArtistIsActive(artistInDB);
+
+                return GenerateLoginReturnDTO(artistInDB);
+                
+            }
+            catch (EmailNotVerifiedException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new EmailNotVerifiedException("You haven't verified your email, verify it first");
+            }
+            catch (UnauthorizedUserException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new UnauthorizedUserException("Invalid username or password");
+            }
+            catch (PremiumSubscriptionExpiredException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+        }
+
+
+
+        public async Task<ArtistReturnDTO> Register(ArtistAddDTO artistAddDTO)
+        {
+            Artist artist;
+            try
+            {
+                var emailExists = await _artistRepository.GetArtistByEmail(artistAddDTO.Email);
+                if (emailExists != null)
+                {
+                    throw new DuplicateEmailException("Email id is already registered");
+                }
+
+                var artistNameExists = await _artistRepository.GetArtistByName(artistAddDTO.Name);
+
+                if (artistNameExists != null)
+                {
+                    throw new ArtistNameAlreadyExists("Artist Name already taken");
+                }
+
+                artist = new Artist()
+                {
+                    Name = artistAddDTO.Name,
+                    Email = artistAddDTO.Email,
+                    Bio = artistAddDTO.Bio,
+                    Status = "Active",
+                    ImageUrl = artistAddDTO.ImageUrl,
+                };
+
+                artist.PasswordHash = _passwordService.HashPassword(artistAddDTO.Password, out byte[] key);
+                artist.PasswordHashKey = key;
+
+                var addedUser = await _artistRepository.Add(artist);
+
+                ArtistReturnDTO artistReturnDTO = _mapper.Map<ArtistReturnDTO>(addedUser);
+
+                return artistReturnDTO;
+            }
+            catch (UnableToAddArtistException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new UnableToAddArtistException(ex.Message);
+            }
+            catch (ArtistNameAlreadyExists ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new ArtistNameAlreadyExists(ex.Message);
+            }
+            catch (DuplicateEmailException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new DuplicateEmailException(ex.Message);
+            }
+            catch (InvalidPasswordException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new InvalidPasswordException(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                var message = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(message);
             }
         }
 
@@ -117,6 +226,47 @@ namespace MusicApplicationAPI.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving artist by ID.");
+                throw;
+            }
+        }
+
+
+
+        public async Task<bool> ChangePassword(ChangePasswordRequestDTO requestDTO, int artistId)
+        {
+            try
+            {
+                var artist = await _artistRepository.GetById(artistId);
+
+                if (artist == null)
+                    throw new NoSuchArtistExistException("Artist not found.");
+
+                if (!_passwordService.VerifyPassword(requestDTO.CurrentPassword, artist.PasswordHash, artist.PasswordHashKey))
+                    return false;
+
+                artist.PasswordHash = _passwordService.HashPassword(requestDTO.NewPassword, out byte[] key);
+                artist.PasswordHashKey = key;
+                await _artistRepository.Update(artist);
+                return true;
+            }
+            catch (NoSuchArtistExistException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (InvalidPasswordException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (UnableToUpdateArtistException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
                 throw;
             }
         }
@@ -220,5 +370,39 @@ namespace MusicApplicationAPI.Services
                 throw;
             }
         }
+
+
+        #region Private Methods
+
+
+        private ArtistLoginReturnDTO GenerateLoginReturnDTO(Artist artist)
+        {
+            return new ArtistLoginReturnDTO
+            {
+                Email = artist.Email,
+                ArtistId = artist.ArtistId,
+                Token = _tokenService.GenerateArtistToken(artist),
+                Name = artist.Name,
+            };
+        }
+
+        private void ValidateArtistCredentials(string password, Artist artist)
+        {
+            if (!_passwordService.VerifyPassword(password, artist.PasswordHash, artist.PasswordHashKey))
+            {
+                throw new UnauthorizedUserException("Invalid username or password");
+            }
+        }
+
+
+        private void EnsureArtistIsActive(Artist artist)
+        {
+            if (artist.Status == null || artist.Status.ToLower() != "active")
+            {
+                throw new ArtistNotActiveException($"Artist with ID {artist.ArtistId} is not active.");
+            }
+        }
+
+        #endregion
     }
 }

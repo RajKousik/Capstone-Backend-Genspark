@@ -73,6 +73,19 @@ namespace MusicApplicationAPI.Services.TokenService
             return CreateToken(claims, 360);
         }
 
+        public string GenerateArtistToken(Artist artist)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, artist.ArtistId.ToString()),
+                new Claim(ClaimTypes.Role, "artist"),
+                new Claim(ClaimTypes.Email, artist.Email),
+                new Claim("FullName", artist.Name)
+            };
+
+            return CreateToken(claims, 360);
+        }
+
         public string GenerateShortLivedToken(User user)
         {
             var claims = new List<Claim>
@@ -84,7 +97,7 @@ namespace MusicApplicationAPI.Services.TokenService
                 new Claim("IsPremiumExpired", "true")
             };
 
-            return CreateToken(claims, 10); // Short-lived token with 5 minutes expiry
+            return CreateToken(claims, 5); // Short-lived token with 5 minutes expiry
         }
 
         #endregion

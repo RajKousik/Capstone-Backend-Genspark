@@ -1,12 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MusicApplicationAPI.Models.DTOs.UserDTO
+namespace MusicApplicationAPI.Models.DTOs.OtherDTO
 {
     public class ChangePasswordRequestDTO
     {
-        [Required] 
-        public int UserId { get; set; }
-        [Required] 
+        [Required]
         public string CurrentPassword { get; set; }
         [Required]
         public string NewPassword { get; set; }

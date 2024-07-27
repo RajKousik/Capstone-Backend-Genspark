@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
+using MusicApplicationAPI.Models.DTOs.OtherDTO;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Models.ErrorModels;
 using MusicApplicationAPI.Services.UserService;
@@ -251,14 +252,14 @@ namespace MusicApplicationAPI.Controllers.v1
 
         [Authorize]
         [HttpPut("change-password")]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDTO requestDTO)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDTO requestDTO, int userId)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var result = await _userService.ChangePassword(requestDTO);
+                var result = await _userService.ChangePassword(requestDTO, userId);
                 if (result)
                     return Ok(new { message = "Password changed successfully." });
                 else

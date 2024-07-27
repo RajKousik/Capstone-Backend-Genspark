@@ -67,6 +67,19 @@ namespace MusicApplicationAPI.Repositories
             return artists;
         }
 
+        public async Task<Artist> GetArtistByEmail(string email)
+        {
+            var artist = await _context.Artists.FirstOrDefaultAsync(u => u.Email == email);
+            return artist;
+        }
+
+
+        public async Task<Artist> GetArtistByName(string name)
+        {
+            var artist = await _context.Artists.FirstOrDefaultAsync(u => u.Name == name);
+            return artist;
+        }
+
         /// <summary>
         /// Retrieves an artist from the database by its ID.
         /// </summary>

@@ -1,4 +1,5 @@
 ﻿using MusicApplicationAPI.Models.DbModels;
+using MusicApplicationAPI.Models.DTOs.OtherDTO;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace MusicApplicationAPI.Interfaces.Service
         Task<UserReturnDTO> DeleteUser(int userId);
         Task<IEnumerable<UserReturnDTO>> GetAllAdminUsers();
 
-        Task<bool> ChangePassword(ChangePasswordRequestDTO requestDTO);
+        Task<bool> ChangePassword(ChangePasswordRequestDTO requestDTO, int userId);
         Task<PremiumUser> UpgradeUserToPremium(int userId, PremiumRequestDTO premiumRequestDTO);
 
         Task<bool> DowngradePremiumUser(int userId);
