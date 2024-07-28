@@ -41,6 +41,16 @@ namespace MusicApplicationAPI
 
             #endregion
 
+            #region CORS
+            builder.Services.AddCors(opts =>
+            {
+                opts.AddPolicy("MyAllowSpecificOrigins", options =>
+                {
+                    options.WithOrigins("https://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                });
+            });
+            #endregion
+
             #region Hangfire
 
             // Add Hangfire services.
@@ -182,15 +192,7 @@ namespace MusicApplicationAPI
 
             #endregion
 
-            #region CORS
-            builder.Services.AddCors(opts =>
-            {
-                opts.AddPolicy("AllowAllCorsPolicy", options =>
-                {
-                    options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
-                });
-            });
-            #endregion
+            
 
             #region JSON Enum Coverter Configuration
             builder.Services.AddControllers().AddJsonOptions(options =>
@@ -202,6 +204,22 @@ namespace MusicApplicationAPI
 
             #region Build Phase
             var app = builder.Build();
+            #endregion
+
+            #region Pipeline Configurations
+
+            app.UseHttpsRedirection();
+            app.UseRouting();
+            app.UseCors("MyAllowSpecificOrigins");
+            app.UseAuthentication();
+            app.UseAuthorization();
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllers();
+            //});
+
+            app.MapControllers();
+
             #endregion
 
             #region Hangfire Configuration
@@ -241,15 +259,7 @@ namespace MusicApplicationAPI
             }
             #endregion
 
-            #region Pipeline Configurations
-
-            app.UseHttpsRedirection();
-            app.UseCors("AllowAllCorsPolicy");
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.MapControllers();
-
-            #endregion
+            
 
             #region WatchDog Configurations
             app.UseWatchDogExceptionLogger();

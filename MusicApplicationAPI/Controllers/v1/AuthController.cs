@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Exceptions.EmailExceptions;
@@ -17,6 +18,7 @@ namespace MusicApplicationAPI.Controllers.v1
 {
     [Route("api/v1/auth")]
     [ApiController]
+
     public class AuthController : ControllerBase
     {
 
@@ -50,6 +52,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="userLoginDTO">The user login data.</param>
         /// <returns>The login result including the token.</returns>
         [HttpPost("user/login")]
+        [EnableCors("MyAllowSpecificOrigins")]
         [ProducesResponseType(typeof(UserLoginReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
@@ -155,6 +158,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <returns>The status code with message.</returns>
         [Authorize]
         [HttpPost("logout")]
+        [EnableCors("MyAllowSpecificOrigins")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public IActionResult Logout()
@@ -162,11 +166,13 @@ namespace MusicApplicationAPI.Controllers.v1
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.Name);
+                Console.WriteLine("Outside");
                 if (Request.Cookies["vibe-vault"] != null)
                 {
+                    Console.WriteLine("Working");
                     Response.Cookies.Delete("vibe-vault", new CookieOptions
                     {
-                        HttpOnly = true,
+                        HttpOnly = false,
                         SameSite = SameSiteMode.None,
                         Secure = true,
                         Expires = DateTimeOffset.UtcNow.AddMinutes(-1)
@@ -290,15 +296,15 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="userId">The user's ID.</param>
         /// <param name="verificationCode">The email verification code.</param>
         /// <returns>The status code with a success message.</returns>
-        [HttpPost("verify/verify-code/{verificationCode}")]
+        [HttpPost("verify/verify-code")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> VerifyVerifiactionCode(int userId, [RegularExpression(@"^\d{6}$")] string verificationCode)
+        public async Task<IActionResult> VerifyVerifiactionCode([FromBody] VerificationCodeDTO verificationCodeDTO)
         {
             try
             {
-                var isSuccess = await _emailVerificationService.VerifyEmail(userId, verificationCode);
+                var isSuccess = await _emailVerificationService.VerifyEmail(verificationCodeDTO.UserId, verificationCodeDTO.Code);
 
                 return Ok(new { message = "Verified successfully." });
             }
