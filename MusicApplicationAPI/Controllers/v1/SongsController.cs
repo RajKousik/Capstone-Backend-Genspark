@@ -279,6 +279,158 @@ namespace MusicApplicationAPI.Controllers.v1
             }
         }
 
+        /// <summary>
+        /// Retrieves songs by artist.
+        /// </summary>
+        /// <param name="artistId">The artist Id to filter songs by.</param>
+        /// <returns>A list of songs by the specified artist.</returns>
+        [HttpGet("artist/{artistId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<SongReturnDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetSongsByArtist([FromRoute] int artistId)
+        {
+            if (artistId <= 0)
+            {
+                return BadRequest(new ErrorModel(400, "Artist Id is required."));
+            }
+
+            try
+            {
+                var result = await _songService.GetSongsByArtistId(artistId);
+                return Ok(result);
+            }
+            catch (NoSuchArtistExistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (NoSongsExistsException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all songs.
+        /// </summary>
+        /// <returns>A list of all songs.</returns>
+        [HttpGet]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<SongReturnDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllSongs()
+        {
+            try
+            {
+                var result = await _songService.GetAllSongs();
+                return Ok(result);
+            }
+            catch (NoSongsExistsException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Retrieves songs by album ID.
+        /// </summary>
+        /// <param name="albumId">The ID of the album to retrieve songs for.</param>
+        /// <returns>A list of songs in the specified album.</returns>
+        [HttpGet("album/{albumId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<SongReturnDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetSongsByAlbumId([FromRoute] int albumId)
+        {
+            if (albumId <= 0)
+            {
+                return BadRequest(new ErrorModel(400, "Invalid album ID."));
+            }
+
+            try
+            {
+                var result = await _songService.GetSongsByAlbumId(albumId);
+                return Ok(result);
+            }
+            catch (NoSuchAlbumExistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (NoSongsExistsException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all songs in an album.
+        /// </summary>
+        /// <returns>A list of album songs.</returns>
+        [HttpGet("album-songs")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<SongReturnDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAlbumSongs()
+        {
+
+            try
+            {
+                var result = await _songService.GetAlbumSongs();
+                return Ok(result);
+            }
+            catch (NoSuchAlbumExistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (NoSongsExistsException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+
         #endregion
     }
 }
