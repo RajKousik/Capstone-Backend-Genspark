@@ -1,5 +1,6 @@
 ﻿using MusicApplicationAPI.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Policy;
 
 namespace MusicApplicationAPI.Models.DTOs.SongDTO
 {
@@ -22,5 +23,7 @@ namespace MusicApplicationAPI.Models.DTOs.SongDTO
         [Required]
         [Url]
         public string Url { get; set; }
+
+        public string ImageUrl { get; set; }
     }
 }

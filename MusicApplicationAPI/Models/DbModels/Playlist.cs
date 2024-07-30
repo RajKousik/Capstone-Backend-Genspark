@@ -21,6 +21,8 @@ namespace MusicApplicationAPI.Models.DbModels
         [Required]
         public bool IsPublic { get; set; }
 
+        public string ImageUrl { get; set; }
+
         public ICollection<PlaylistSong> PlaylistSongs { get; set; }
         public ICollection<Favorite> Favorites { get; set; }
     }

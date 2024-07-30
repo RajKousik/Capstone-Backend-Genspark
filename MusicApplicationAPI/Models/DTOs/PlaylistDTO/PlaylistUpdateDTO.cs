@@ -6,5 +6,7 @@ namespace MusicApplicationAPI.Models.DTOs.PlaylistDTO
     {
         public string Name { get; set; }
         public bool IsPublic { get; set; }
+
+        public string ImageUrl { get; set; }
     }
 }

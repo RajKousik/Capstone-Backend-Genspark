@@ -10,6 +10,8 @@ namespace MusicApplicationAPI.Models.DTOs.SongDTO
 
         public string Url { get; set; }
 
+        public string ImageUrl { get; set; }
+
         public int Duration { get; set; }
 
         public int ArtistId { get; set; }

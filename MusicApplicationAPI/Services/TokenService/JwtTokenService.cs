@@ -8,13 +8,13 @@ using System.Text;
 
 namespace MusicApplicationAPI.Services.TokenService
 {
-    public class TokenService : ITokenService
+    public class JwtTokenService : ITokenService
     {
         #region Private Fields
 
         private readonly string _secretKey;
         private readonly SymmetricSecurityKey _key;
-        private readonly ILogger<TokenService> _logger;
+        private readonly ILogger<JwtTokenService> _logger;
 
         #endregion
 
@@ -23,7 +23,7 @@ namespace MusicApplicationAPI.Services.TokenService
         /// Initializes a new instance of the <see cref="TokenService"/> class.
         /// </summary>
         /// <param name="configuration">The configuration containing the JWT secret key.</param>
-        public TokenService(IConfiguration configuration, ILogger<TokenService> logger)
+        public JwtTokenService(IConfiguration configuration, ILogger<JwtTokenService> logger)
         {
             _secretKey = configuration.GetSection("TokenKey").GetSection("JWT").Value;
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));

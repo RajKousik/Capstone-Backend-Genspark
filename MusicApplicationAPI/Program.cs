@@ -24,6 +24,9 @@ using System.Text.Json.Serialization;
 using MusicApplicationAPI.Services.EmailService;
 using Hangfire;
 using HangfireBasicAuthenticationFilter;
+using System.Net.Sockets;
+using System.Net;
+using Stripe;
 
 namespace MusicApplicationAPI
 {
@@ -117,6 +120,7 @@ namespace MusicApplicationAPI
             builder.Services.AddScoped<IRatingRepository, RatingRepository>();
             builder.Services.AddScoped<IPremiumUserRepository, PremiumUserRepository>();
             builder.Services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
+            builder.Services.AddSingleton<StripeService>();
             #endregion 
 
             #region AutoMapper
@@ -125,7 +129,7 @@ namespace MusicApplicationAPI
 
             #region Services Injection
 
-            builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<ITokenService, JwtTokenService>();
             builder.Services.AddScoped<IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO>, UserAuthService>();
             builder.Services.AddScoped<IAuthLoginService<UserLoginReturnDTO, UserLoginDTO>, UserAuthService>();
             builder.Services.AddScoped<IUserService, UserService>();
@@ -244,7 +248,7 @@ namespace MusicApplicationAPI
             #endregion
 
             #region CRON JOB
-            RecurringJob.AddOrUpdate<SubscriptionService>(
+            RecurringJob.AddOrUpdate<SubscriptionMailService>(
                 "check-expiring-subscriptions",
                 service => service.CheckAndNotifyExpiringSubscriptions(),
                 Cron.Hourly); // Runs every hour

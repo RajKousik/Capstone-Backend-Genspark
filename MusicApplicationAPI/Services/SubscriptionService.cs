@@ -6,13 +6,13 @@ using MusicApplicationAPI.Services.EmailService;
 
 namespace MusicApplicationAPI.Services
 {
-    public class SubscriptionService
+    public class SubscriptionMailService
     {
         private readonly IPremiumUserRepository _premiumUserRepository;
         private readonly IUserRepository _userRepository;
         private readonly IEmailSender _emailSenderService;
 
-        public SubscriptionService(IUserRepository userRepository, IEmailSender emailSenderService, IPremiumUserRepository premiumUserRepository)
+        public SubscriptionMailService(IUserRepository userRepository, IEmailSender emailSenderService, IPremiumUserRepository premiumUserRepository)
         {
             _premiumUserRepository = premiumUserRepository;
             _emailSenderService = emailSenderService;

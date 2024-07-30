@@ -37,6 +37,9 @@ namespace MusicApplicationAPI.Models.DbModels
         [Url]
         public string Url { get; set; }
 
+
+        public string ImageUrl { get; set; }
+
         public ICollection<PlaylistSong> PlaylistSongs { get; set; }
         public ICollection<Favorite> Favorites { get; set; }
         public ICollection<Rating> Ratings { get; set; }

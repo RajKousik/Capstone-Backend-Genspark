@@ -114,7 +114,7 @@ namespace MusicApplicationAPI.Contexts
             );
 
             modelBuilder.Entity<Song>().HasData(
-                new Song { SongId = 1, Title = "Song One", ArtistId = 1, AlbumId = 1, Genre = GenreType.Pop, Duration = 120, ReleaseDate = new DateTime(2020, 1, 1), Url = "http://example.com/song1.mp3" }
+                new Song { SongId = 1, Title = "Song One", ArtistId = 1, AlbumId = 1, Genre = GenreType.Pop, Duration = 120, ReleaseDate = new DateTime(2020, 1, 1), Url = "http://example.com/song1.mp3", ImageUrl="https://some-url" }
             );
 
 
@@ -142,7 +142,7 @@ namespace MusicApplicationAPI.Contexts
             );
 
             modelBuilder.Entity<Playlist>().HasData(
-                new Playlist { PlaylistId = 1, UserId = 102, Name = "Playlist One", IsPublic = true }
+                new Playlist { PlaylistId = 1, UserId = 102, Name = "Playlist One", IsPublic = true, ImageUrl= "https://some-url" }
             );
 
             modelBuilder.Entity<PlaylistSong>().HasData(

@@ -29,5 +29,7 @@ namespace MusicApplicationAPI.Models.DTOs.SongDTO
         [Required]
         [Url]
         public string Url { get; set; }
+
+        public string ImageUrl { get; set; }
     }
 }
