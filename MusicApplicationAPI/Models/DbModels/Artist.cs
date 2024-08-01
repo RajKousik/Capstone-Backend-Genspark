@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MusicApplicationAPI.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace MusicApplicationAPI.Models.DbModels
@@ -26,6 +27,9 @@ namespace MusicApplicationAPI.Models.DbModels
         [Required]
         [JsonIgnore]
         public byte[] PasswordHashKey { get; set; }
+
+        [Required]
+        public RoleType Role { get; set; }
 
         public string? Status { get; set; }
 

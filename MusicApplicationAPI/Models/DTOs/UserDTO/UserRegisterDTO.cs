@@ -21,5 +21,7 @@ namespace MusicApplicationAPI.Models.DTOs.UserDTO
 
         [Required]
         public DateOnly DOB { get; set; }
+
+        public string Phone { get; set; }
     }
 }

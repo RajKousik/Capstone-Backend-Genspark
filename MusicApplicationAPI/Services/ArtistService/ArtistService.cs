@@ -71,6 +71,10 @@ namespace MusicApplicationAPI.Services
             try
             {
                 var artistInDB = await _artistRepository.GetArtistByEmail(artistLoginDTO.Email);
+                if(artistInDB == null)
+                {
+                    throw new UnauthorizedUserException();
+                }
                 ValidateArtistCredentials(artistLoginDTO.Password, artistInDB);
                 EnsureArtistIsActive(artistInDB);
 
@@ -91,6 +95,37 @@ namespace MusicApplicationAPI.Services
             {
                 _logger.LogError(ex.Message);
                 throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<ArtistReturnDTO> ActivateArtist(int artistId)
+        {
+            try
+            {
+                var artistInDB = await _artistRepository.GetById(artistId);
+                
+                if(artistInDB.Status?.ToLower() == "active")
+                {
+                    throw new Exception("Artist Already activated");
+                }
+
+                artistInDB.Status = "Active";
+                await _artistRepository.Update(artistInDB);
+
+                return _mapper.Map<ArtistReturnDTO>(artistInDB);
+
+                //return GenerateLoginReturnDTO(artistInDB);
+
+            }
+            catch (NoSuchArtistExistException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new NoSuchArtistExistException();
             }
             catch (Exception ex)
             {
@@ -124,8 +159,9 @@ namespace MusicApplicationAPI.Services
                     Name = artistAddDTO.Name,
                     Email = artistAddDTO.Email,
                     Bio = artistAddDTO.Bio,
-                    Status = "Active",
+                    Status = "InActive",
                     ImageUrl = artistAddDTO.ImageUrl,
+                    Role = RoleType.Artist
                 };
 
                 artist.PasswordHash = _passwordService.HashPassword(artistAddDTO.Password, out byte[] key);
@@ -383,6 +419,7 @@ namespace MusicApplicationAPI.Services
                 ArtistId = artist.ArtistId,
                 Token = _tokenService.GenerateArtistToken(artist),
                 Name = artist.Name,
+                Role = artist.Role
             };
         }
 
@@ -399,7 +436,7 @@ namespace MusicApplicationAPI.Services
         {
             if (artist.Status == null || artist.Status.ToLower() != "active")
             {
-                throw new ArtistNotActiveException($"Artist with ID {artist.ArtistId} is not active.");
+                throw new ArtistNotActiveException($"Your Account is not activated.");
             }
         }
 

@@ -105,7 +105,7 @@ namespace MusicApplicationAPI.Contexts
                 new Artist { ArtistId = 1, Name = "Artist One", Bio = "Bio of Artist One", ImageUrl = "http://example.com/artist1.jpg", Email="artist1@gmail.com",
                     PasswordHashKey = hmac.Key,
                     PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Artist1@123")),
-                    Status="Active"
+                    Status="Active", Role=RoleType.Artist
                 }
             );
 
@@ -128,6 +128,7 @@ namespace MusicApplicationAPI.Contexts
                     Role = RoleType.Admin,
                     PasswordHashKey = hmac.Key,
                     PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Admin@123")),
+                    Phone = "9790852900"
                 },
                 new User()
                 {
@@ -138,6 +139,7 @@ namespace MusicApplicationAPI.Contexts
                     Role = RoleType.NormalUser,
                     PasswordHashKey = hmac.Key,
                     PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Mathew@123")),
+                    Phone = "9012382181"
                 }
             );
 

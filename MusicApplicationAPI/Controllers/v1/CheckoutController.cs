@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Services;
 
 namespace MusicApplicationAPI.Controllers.v1
@@ -23,13 +24,5 @@ namespace MusicApplicationAPI.Controllers.v1
         }
     }
 
-    public class CheckoutRequest
-    {
-        public decimal Amount { get; set; }
-        public string Currency { get; set; }
 
-        public int userId { get; set; }
-
-        public int durationInDays { get; set; }
-    }
 }

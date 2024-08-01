@@ -23,5 +23,9 @@ namespace MusicApplicationAPI.Interfaces.Service
         Task<UserRegisterReturnDTO> AddAdmin(UserRegisterDTO adminRegisterDTO);
 
         Task<UserReturnDTO> GetAdminById(int adminId);
+
+        Task<PremiumUser> GetPremiumUserByUserId(int userId);
+
+        Task<IEnumerable<PremiumUser>> GetAllPremiumUsers();
     }
 }

@@ -166,10 +166,8 @@ namespace MusicApplicationAPI.Controllers.v1
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.Name);
-                Console.WriteLine("Outside");
                 if (Request.Cookies["vibe-vault"] != null)
                 {
-                    Console.WriteLine("Working");
                     Response.Cookies.Delete("vibe-vault", new CookieOptions
                     {
                         HttpOnly = false,
@@ -193,6 +191,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="artistLoginDTO">The artist login data.</param>
         /// <returns>The login result including the token.</returns>
         [HttpPost("artist/login")]
+        [EnableCors("MyAllowSpecificOrigins")]
         [ProducesResponseType(typeof(ArtistLoginReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
@@ -222,6 +221,63 @@ namespace MusicApplicationAPI.Controllers.v1
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
                 return StatusCode(401, new ErrorModel(401, ex.Message));
+            }
+            catch (ArtistNotActiveException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(401, new ErrorModel(401, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+
+
+        /// <summary>
+        /// Logs in an artist.
+        /// </summary>
+        /// <param name="artistLoginDTO">The artist login data.</param>
+        /// <returns>The login result including the token.</returns>
+        [HttpPut("artist/verify")]
+        [Authorize(Roles ="Admin")]
+        [ProducesResponseType(typeof(ArtistReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ArtistLogin([FromQuery] int artistId)
+        {
+            if (artistId <= 0)
+            {
+                return BadRequest(new ErrorModel(400, "Invalid data."));
+            }
+
+            try
+            {
+                var result = await _artistService.ActivateArtist(artistId);
+                return Ok(result);
+            }
+            catch (UnauthorizedUserException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(401, new ErrorModel(401, ex.Message));
+            }
+            catch (NoSuchArtistExistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (UnableToUpdateArtistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(400, new ErrorModel(400, ex.Message));
             }
             catch (Exception ex)
             {

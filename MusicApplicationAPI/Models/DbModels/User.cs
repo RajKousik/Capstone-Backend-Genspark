@@ -20,6 +20,9 @@ namespace MusicApplicationAPI.Models.DbModels
         [MaxLength(100)]
         public string Email { get; set; }
 
+
+        public string Phone { get; set; }
+
         [Required]
         public RoleType Role { get; set; } // Admin, Normal User, Premium User
 

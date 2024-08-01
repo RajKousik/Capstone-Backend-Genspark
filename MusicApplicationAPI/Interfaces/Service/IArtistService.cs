@@ -19,5 +19,7 @@ namespace MusicApplicationAPI.Interfaces.Service
         Task<IEnumerable<SongReturnDTO>> GetSongsByArtist(int artistId);
 
         Task<bool> ChangePassword(ChangePasswordRequestDTO requestDTO, int artistId);
+
+        Task<ArtistReturnDTO> ActivateArtist(int artistId);
     }
 }

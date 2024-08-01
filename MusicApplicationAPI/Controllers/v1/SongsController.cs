@@ -39,7 +39,7 @@ namespace MusicApplicationAPI.Controllers.v1
         /// <param name="songDto">The song data to add.</param>
         /// <returns>The added song data.</returns>
         [HttpPost]
-        [Authorize(Roles = "Admin, Artist")]
+        [Authorize(Roles = "Admin,Artist")]
         [ProducesResponseType(typeof(SongReturnDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -91,6 +91,25 @@ namespace MusicApplicationAPI.Controllers.v1
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
                 return StatusCode(500, new ErrorModel(500, $"{ex.Message}"));
+            }
+        }
+
+
+        [Authorize]
+        [HttpDelete("range")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<bool>> DeleteSong([FromBody] IList<int> songIds)
+        {
+            try
+            {
+                var result = await _songService.DeleteRangeSongs(songIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
             }
         }
 

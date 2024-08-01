@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Interfaces.Service.AuthService;
+using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.DTOs.OtherDTO;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Models.ErrorModels;
-using MusicApplicationAPI.Services.UserService;
 using WatchDog;
 
 namespace MusicApplicationAPI.Controllers.v1
@@ -363,6 +363,73 @@ namespace MusicApplicationAPI.Controllers.v1
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex.Message);
                 return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+
+        /// <summary>
+        /// Downgrades a premium user to a normal user.
+        /// </summary>
+        /// <param name="userId">The ID of the user to downgrade.</param>
+        /// <returns>An action result indicating success or failure.</returns>
+        [Authorize]
+        [HttpGet("premium-user")]
+        [ProducesResponseType(typeof(PremiumUser), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPremiumUser(int userId)
+        {
+            try
+            {
+                var premiumUser = await _userService.GetPremiumUserByUserId(userId);
+                return Ok(premiumUser);
+            }
+            catch (NoSuchPremiumUserExistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+
+
+        /// <summary>
+        /// Downgrades a premium user to a normal user.
+        /// </summary>
+        /// <param name="userId">The ID of the user to downgrade.</param>
+        /// <returns>An action result indicating success or failure.</returns>
+        [Authorize]
+        [HttpGet("premium-users")]
+        [ProducesResponseType(typeof(IEnumerable<PremiumUser>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllPremiumUsers()
+        {
+            try
+            {
+                var premiumUsers = await _userService.GetAllPremiumUsers();
+                return Ok(premiumUsers);
+            }
+            catch (NoSuchPremiumUserExistException ex)
+            {
+                WatchLogger.Log(ex.Message);
+                _logger.LogError(ex.Message);
+                return StatusCode(404, new ErrorModel(404, ex.Message));
             }
             catch (Exception ex)
             {

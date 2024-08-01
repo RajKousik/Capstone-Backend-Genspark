@@ -78,7 +78,7 @@ namespace MusicApplicationAPI.Services.TokenService
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, artist.ArtistId.ToString()),
-                new Claim(ClaimTypes.Role, "artist"),
+                new Claim(ClaimTypes.Role, artist.Role.ToString()),
                 new Claim(ClaimTypes.Email, artist.Email),
                 new Claim("FullName", artist.Name)
             };

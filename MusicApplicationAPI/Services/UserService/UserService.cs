@@ -231,6 +231,34 @@ namespace MusicApplicationAPI.Services.UserService
             }
         }
 
+
+        /// <summary>
+        /// Gets all users.
+        /// </summary>
+        /// <returns>A list of premium users </returns>
+        public async Task<IEnumerable<PremiumUser>> GetAllPremiumUsers()
+        {
+            try
+            {
+                //var users = (await _userRepository.GetAll()).Where(u => u.Role == RoleType.PremiumUser).ToList();
+
+                var premiumUsers = (await _premiumUserRepository.GetAll()).ToList();
+                if (premiumUsers.Count == 0)
+                    throw new NoUsersExistsExistsException("No users in the database");
+                return _mapper.Map<IEnumerable<PremiumUser>>(premiumUsers);
+            }
+            catch (NoUsersExistsExistsException ex)
+            {
+                _logger.LogError(ex, "Error retrieving all Premium users.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all Premium users.");
+                throw;
+            }
+        }
+
         /// <summary>
         /// Gets all users.
         /// </summary>
@@ -376,6 +404,8 @@ namespace MusicApplicationAPI.Services.UserService
 
                     existingPremiumUser.EndDate = newEndDate;
                     existingPremiumUser.Money = premiumRequest.Money;
+                    existingPremiumUser.LastNotifiedOneHourBefore = null;
+                    existingPremiumUser.LastNotifiedTwoDaysBefore = null;
 
                     await _premiumUserRepository.Update(existingPremiumUser);
                     await SendPremiumSubscriptionUpgradeEmail(user, newEndDate, isRenewal: true);
@@ -464,7 +494,7 @@ namespace MusicApplicationAPI.Services.UserService
             return user;
         }
 
-        private async Task<PremiumUser> GetPremiumUserByUserId(int userId)
+        public async Task<PremiumUser> GetPremiumUserByUserId(int userId)
         {
             var premiumUser = await _premiumUserRepository.GetByUserId(userId);
             if (premiumUser == null)

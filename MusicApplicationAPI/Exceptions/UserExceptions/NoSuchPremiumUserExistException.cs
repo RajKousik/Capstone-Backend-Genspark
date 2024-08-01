@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace MusicApplicationAPI.Services.UserService
+namespace MusicApplicationAPI.Exceptions.UserExceptions
 {
     [Serializable]
     public class NoSuchPremiumUserExistException : Exception

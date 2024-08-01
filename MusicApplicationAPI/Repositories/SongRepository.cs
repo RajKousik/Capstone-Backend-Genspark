@@ -125,6 +125,29 @@ namespace MusicApplicationAPI.Repositories
                     :
                     song;
         }
+
+
+        public async Task<bool> DeleteRange(IList<int> key)
+        {
+            IList<Song> songs = new List<Song>();
+            foreach (var id in key)
+            {
+                var result = await GetById(id);
+                songs.Add(result);
+            }
+            if (songs.Count() <= 0)
+            {
+                throw new NoSongsExistsException("No songs found for the given constraint");
+            }
+            _context.RemoveRange(songs);
+            int noOfRowsAffected = await _context.SaveChangesAsync();
+
+            if (noOfRowsAffected <= 0)
+            {
+                throw new UnableToDeleteSongException("Unable to delete the set of songs");
+            }
+            return true;
+        }
         #endregion
     }
 }

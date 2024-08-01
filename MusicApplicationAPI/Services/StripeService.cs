@@ -8,10 +8,14 @@ namespace MusicApplicationAPI.Services
     public class StripeService
     {
         private readonly string _secretKey;
+        private readonly string _successUrl;
+        private readonly string _cancelUrl;
 
         public StripeService(IConfiguration configuration)
         {
             _secretKey = configuration.GetSection("Stripe")["SecretKey"];
+            _successUrl =  configuration["FrontEnd:SuccesUrl"];
+            _cancelUrl = configuration["FrontEnd:CancelUrl"];
             StripeConfiguration.ApiKey = _secretKey;
         }
 
@@ -43,8 +47,8 @@ namespace MusicApplicationAPI.Services
                     { "user_id", userId.ToString() },
                     { "duration_in_days", durationInDays.ToString() } // Add durationInDays as metadata
                 },
-                SuccessUrl = "https://localhost:3000/user-dashboard", // Replace with your success URL
-                CancelUrl = "https://localhost:3000/user-dashboard", // Replace with your cancel URL
+                SuccessUrl = _successUrl, // Replace with your success URL
+                CancelUrl = _cancelUrl, // Replace with your cancel URL
             };
 
             var service = new SessionService();

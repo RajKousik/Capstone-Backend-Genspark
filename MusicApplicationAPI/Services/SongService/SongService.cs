@@ -92,6 +92,7 @@ namespace MusicApplicationAPI.Services.SongService
                     AlbumId = songAddDTO.AlbumId,
                     Duration = songAddDTO.Duration,
                     ReleaseDate = DateTime.Now,
+                    ImageUrl = songAddDTO.ImageUrl,
                 };
 
                 // Add the song to the repository
@@ -130,6 +131,25 @@ namespace MusicApplicationAPI.Services.SongService
             }
         }
 
+        public async Task<bool> DeleteRangeSongs(IList<int> ids)
+        {
+            try
+            {
+                await _songRepository.DeleteRange(ids);
+                return true;
+            }
+            catch (NoSongsExistsException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("Unable to delete songs" + ex.Message);
+                throw new NoSuchSongExistException("Unable to delete songs. " + ex.Message);
+            }
+        }
+
 
         public async Task<SongReturnDTO> UpdateSong(int songId, SongUpdateDTO songUpdateDTO)
         {
@@ -158,6 +178,7 @@ namespace MusicApplicationAPI.Services.SongService
                 song.AlbumId = songUpdateDTO.AlbumId;
                 song.Url = songUpdateDTO.Url;
                 song.Duration = songUpdateDTO.Duration;
+                song.ImageUrl = songUpdateDTO.ImageUrl;
 
                 var updatedSong = await _songRepository.Update(song);
                 return _mapper.Map<SongReturnDTO>(updatedSong);

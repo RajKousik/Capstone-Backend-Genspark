@@ -7,5 +7,7 @@ namespace MusicApplicationAPI.Interfaces.Repository
     {
         public Task<IEnumerable<Song>> GetSongsByArtistId(int artistId);
         public Task<IEnumerable<Song>> GetSongsByAlbumId(int albumId);
+
+        public Task<bool> DeleteRange(IList<int> key);
     }
 }

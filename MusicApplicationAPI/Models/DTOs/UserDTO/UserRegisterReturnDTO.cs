@@ -12,6 +12,8 @@ namespace MusicApplicationAPI.Models.DTOs.UserDTO
         [MaxLength(50)]
         public string Username { get; set; }
 
+        public string Phone { get; set; }
+
         [Required]
         [EmailAddress]
         [MaxLength(100)]

@@ -13,6 +13,8 @@ namespace MusicApplicationAPI.Interfaces.Service
         Task<IEnumerable<SongReturnDTO>> GetAllSongs();
         Task<SongReturnDTO> DeleteSong(int songId);
 
+        Task<bool> DeleteRangeSongs(IList<int> ids);
+
         Task<IEnumerable<SongReturnDTO>> GetSongsByArtistId(int artistId);
         Task<IEnumerable<SongReturnDTO>> GetSongsByAlbumId(int albumId);
         Task<IEnumerable<SongReturnDTO>> GetAlbumSongs();

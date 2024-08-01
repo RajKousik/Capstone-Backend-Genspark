@@ -12,10 +12,12 @@ namespace MusicApplicationAPI.Controllers.v1
     public class StripeWebhookController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IConfiguration _configuration;
 
-        public StripeWebhookController(IUserService userService)
+        public StripeWebhookController(IUserService userService, IConfiguration configuration)
         {
             _userService = userService;
+            _configuration = configuration;
         }
 
         [HttpPost("/webhook")]
@@ -23,22 +25,21 @@ namespace MusicApplicationAPI.Controllers.v1
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
 
+            var webhook_secret = _configuration["WebHooks:Stripe:SecretKey"];
+
             try
             {
-                Console.WriteLine("Hit");
                 var stripeEvent = EventUtility.ConstructEvent(
                     json,
                     Request.Headers["Stripe-Signature"],
-                    "whsec_74ba5ae47b4064d66d3381ac473d51c460cab3519d1152c313aff7b0e373a69c" // Your webhook secret
+                    webhook_secret // Your webhook secret
                 );
 
                 if (stripeEvent.Type == "checkout.session.completed")
                 {
-                    Console.WriteLine("Inside if");
                     var session = stripeEvent.Data.Object as Session;
                     if (session != null)
                     {
-                        Console.WriteLine("Session ID: " + session.Id);
 
                         if (session.Metadata.TryGetValue("user_id", out var userIdStr) &&
                             session.Metadata.TryGetValue("duration_in_days", out var durationInDaysStr))

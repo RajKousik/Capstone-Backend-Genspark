@@ -1,7 +1,7 @@
 ﻿using MusicApplicationAPI.Models.DbModels;
 using System.Runtime.Serialization;
 
-namespace MusicApplicationAPI.Services
+namespace MusicApplicationAPI.Exceptions.ArtistExceptions
 {
     [Serializable]
     public class ArtistNotActiveException : Exception

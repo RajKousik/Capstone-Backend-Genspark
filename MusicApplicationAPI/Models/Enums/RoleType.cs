@@ -4,6 +4,7 @@
     {
         Admin = 1,
         NormalUser = 2,
-        PremiumUser = 3
+        PremiumUser = 3,
+        Artist = 4,
     }
 }
