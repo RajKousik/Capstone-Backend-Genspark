@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MusicApplicationAPI.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class AzureInitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -17,6 +17,11 @@ namespace MusicApplicationAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Bio = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    PasswordHashKey = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    Role = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -32,10 +37,12 @@ namespace MusicApplicationAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false),
                     PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     PasswordHashKey = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    DOB = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    DOB = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -65,6 +72,27 @@ namespace MusicApplicationAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EmailVerifications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    VerificationCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmailVerifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EmailVerifications_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Playlists",
                 columns: table => new
                 {
@@ -72,13 +100,38 @@ namespace MusicApplicationAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    IsPublic = table.Column<bool>(type: "bit", nullable: false)
+                    IsPublic = table.Column<bool>(type: "bit", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Playlists", x => x.PlaylistId);
                     table.ForeignKey(
                         name: "FK_Playlists_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PremiumUsers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Money = table.Column<double>(type: "float", nullable: false),
+                    LastNotifiedTwoDaysBefore = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastNotifiedOneHourBefore = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PremiumUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PremiumUsers_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
@@ -97,7 +150,8 @@ namespace MusicApplicationAPI.Migrations
                     Genre = table.Column<int>(type: "int", nullable: false),
                     Duration = table.Column<int>(type: "int", nullable: false),
                     ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -203,18 +257,18 @@ namespace MusicApplicationAPI.Migrations
 
             migrationBuilder.InsertData(
                 table: "Artists",
-                columns: new[] { "ArtistId", "Bio", "ImageUrl", "Name" },
-                values: new object[] { 1, "Bio of Artist One", "http://example.com/artist1.jpg", "Artist One" });
+                columns: new[] { "ArtistId", "Bio", "Email", "ImageUrl", "Name", "PasswordHash", "PasswordHashKey", "Role", "Status" },
+                values: new object[] { 1, "Bio of Artist One", "artist1@gmail.com", "http://example.com/artist1.jpg", "Artist One", new byte[] { 245, 17, 219, 213, 55, 33, 158, 50, 138, 218, 16, 45, 178, 59, 17, 199, 85, 237, 44, 50, 37, 97, 118, 176, 217, 237, 106, 162, 86, 72, 178, 48, 176, 40, 205, 227, 247, 52, 35, 15, 114, 156, 243, 145, 151, 144, 233, 145, 231, 101, 254, 17, 221, 205, 61, 194, 212, 72, 248, 95, 150, 87, 76, 45 }, new byte[] { 248, 61, 181, 152, 250, 160, 207, 242, 60, 129, 9, 113, 226, 195, 212, 204, 242, 124, 15, 144, 233, 137, 116, 41, 217, 101, 5, 104, 164, 156, 199, 56, 137, 20, 7, 188, 255, 87, 211, 130, 182, 123, 39, 188, 70, 55, 122, 44, 156, 153, 71, 215, 208, 204, 78, 92, 200, 66, 55, 160, 108, 59, 70, 18, 102, 124, 73, 164, 46, 28, 87, 69, 210, 191, 115, 38, 134, 22, 201, 30, 128, 219, 100, 130, 1, 245, 196, 246, 120, 36, 123, 201, 22, 52, 238, 123, 100, 250, 200, 206, 36, 220, 83, 193, 97, 51, 76, 171, 130, 123, 178, 137, 128, 210, 230, 248, 237, 152, 229, 60, 37, 231, 64, 80, 138, 181, 66, 84 }, 4, "Active" });
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "UserId", "DOB", "Email", "PasswordHash", "PasswordHashKey", "Role", "Username" },
-                values: new object[] { 101, new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "kousik@gmail.com", new byte[] { 188, 138, 20, 213, 242, 13, 239, 95, 129, 213, 45, 197, 0, 253, 84, 24, 82, 132, 113, 160, 32, 147, 178, 159, 167, 251, 182, 118, 1, 186, 103, 187, 178, 18, 147, 105, 236, 1, 60, 52, 203, 104, 143, 83, 47, 159, 61, 60, 147, 103, 244, 223, 246, 179, 72, 227, 83, 211, 113, 245, 208, 232, 145, 176 }, new byte[] { 57, 134, 191, 82, 188, 97, 218, 62, 178, 159, 107, 128, 131, 64, 208, 163, 107, 183, 240, 250, 27, 201, 16, 102, 172, 199, 222, 150, 254, 80, 90, 169, 29, 161, 128, 68, 39, 102, 137, 40, 178, 133, 2, 62, 250, 110, 3, 235, 201, 50, 98, 219, 246, 161, 47, 201, 22, 215, 9, 47, 107, 175, 183, 29, 252, 126, 28, 18, 192, 77, 7, 172, 182, 231, 112, 247, 71, 142, 39, 132, 0, 58, 220, 138, 227, 70, 61, 55, 169, 48, 224, 215, 32, 231, 90, 100, 33, 96, 229, 134, 220, 129, 131, 248, 59, 233, 198, 89, 171, 231, 249, 186, 35, 25, 65, 233, 12, 5, 151, 69, 206, 250, 232, 108, 189, 146, 73, 173 }, 1, "Kousik Raj" });
+                columns: new[] { "UserId", "DOB", "Email", "PasswordHash", "PasswordHashKey", "Phone", "Role", "Status", "Username" },
+                values: new object[] { 101, new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "kousik@gmail.com", new byte[] { 113, 173, 78, 250, 19, 72, 240, 152, 38, 186, 145, 224, 77, 83, 216, 130, 114, 189, 144, 209, 228, 202, 89, 2, 245, 222, 168, 166, 202, 57, 115, 177, 5, 216, 231, 8, 42, 159, 80, 128, 66, 96, 160, 154, 149, 158, 112, 209, 138, 74, 208, 134, 23, 139, 195, 77, 59, 182, 198, 58, 128, 58, 197, 192 }, new byte[] { 248, 61, 181, 152, 250, 160, 207, 242, 60, 129, 9, 113, 226, 195, 212, 204, 242, 124, 15, 144, 233, 137, 116, 41, 217, 101, 5, 104, 164, 156, 199, 56, 137, 20, 7, 188, 255, 87, 211, 130, 182, 123, 39, 188, 70, 55, 122, 44, 156, 153, 71, 215, 208, 204, 78, 92, 200, 66, 55, 160, 108, 59, 70, 18, 102, 124, 73, 164, 46, 28, 87, 69, 210, 191, 115, 38, 134, 22, 201, 30, 128, 219, 100, 130, 1, 245, 196, 246, 120, 36, 123, 201, 22, 52, 238, 123, 100, 250, 200, 206, 36, 220, 83, 193, 97, 51, 76, 171, 130, 123, 178, 137, 128, 210, 230, 248, 237, 152, 229, 60, 37, 231, 64, 80, 138, 181, 66, 84 }, "9790852900", 1, null, "Kousik Raj" });
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "UserId", "DOB", "Email", "PasswordHash", "PasswordHashKey", "Role", "Username" },
-                values: new object[] { 102, new DateTime(2003, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "mathew@gmail.com", new byte[] { 239, 176, 171, 188, 215, 46, 40, 60, 226, 122, 114, 116, 232, 48, 145, 182, 83, 167, 179, 165, 102, 41, 11, 91, 145, 62, 253, 62, 214, 210, 255, 56, 132, 70, 220, 66, 54, 11, 53, 240, 123, 125, 216, 5, 51, 175, 36, 231, 254, 64, 154, 43, 147, 72, 197, 99, 173, 244, 251, 227, 21, 25, 180, 133 }, new byte[] { 57, 134, 191, 82, 188, 97, 218, 62, 178, 159, 107, 128, 131, 64, 208, 163, 107, 183, 240, 250, 27, 201, 16, 102, 172, 199, 222, 150, 254, 80, 90, 169, 29, 161, 128, 68, 39, 102, 137, 40, 178, 133, 2, 62, 250, 110, 3, 235, 201, 50, 98, 219, 246, 161, 47, 201, 22, 215, 9, 47, 107, 175, 183, 29, 252, 126, 28, 18, 192, 77, 7, 172, 182, 231, 112, 247, 71, 142, 39, 132, 0, 58, 220, 138, 227, 70, 61, 55, 169, 48, 224, 215, 32, 231, 90, 100, 33, 96, 229, 134, 220, 129, 131, 248, 59, 233, 198, 89, 171, 231, 249, 186, 35, 25, 65, 233, 12, 5, 151, 69, 206, 250, 232, 108, 189, 146, 73, 173 }, 2, "Mathew" });
+                columns: new[] { "UserId", "DOB", "Email", "PasswordHash", "PasswordHashKey", "Phone", "Role", "Status", "Username" },
+                values: new object[] { 102, new DateTime(2003, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "mathew@gmail.com", new byte[] { 249, 172, 48, 217, 224, 72, 242, 138, 29, 70, 26, 250, 225, 253, 52, 76, 203, 106, 121, 118, 196, 208, 51, 115, 75, 188, 35, 180, 54, 236, 148, 164, 100, 118, 127, 105, 115, 160, 94, 103, 51, 202, 232, 202, 113, 62, 188, 207, 139, 183, 130, 122, 147, 108, 3, 73, 85, 51, 3, 54, 182, 226, 98, 78 }, new byte[] { 248, 61, 181, 152, 250, 160, 207, 242, 60, 129, 9, 113, 226, 195, 212, 204, 242, 124, 15, 144, 233, 137, 116, 41, 217, 101, 5, 104, 164, 156, 199, 56, 137, 20, 7, 188, 255, 87, 211, 130, 182, 123, 39, 188, 70, 55, 122, 44, 156, 153, 71, 215, 208, 204, 78, 92, 200, 66, 55, 160, 108, 59, 70, 18, 102, 124, 73, 164, 46, 28, 87, 69, 210, 191, 115, 38, 134, 22, 201, 30, 128, 219, 100, 130, 1, 245, 196, 246, 120, 36, 123, 201, 22, 52, 238, 123, 100, 250, 200, 206, 36, 220, 83, 193, 97, 51, 76, 171, 130, 123, 178, 137, 128, 210, 230, 248, 237, 152, 229, 60, 37, 231, 64, 80, 138, 181, 66, 84 }, "9012382181", 2, null, "Mathew" });
 
             migrationBuilder.InsertData(
                 table: "Albums",
@@ -223,13 +277,13 @@ namespace MusicApplicationAPI.Migrations
 
             migrationBuilder.InsertData(
                 table: "Playlists",
-                columns: new[] { "PlaylistId", "IsPublic", "Name", "UserId" },
-                values: new object[] { 1, true, "Playlist One", 102 });
+                columns: new[] { "PlaylistId", "ImageUrl", "IsPublic", "Name", "UserId" },
+                values: new object[] { 1, "https://some-url", true, "Playlist One", 102 });
 
             migrationBuilder.InsertData(
                 table: "Songs",
-                columns: new[] { "SongId", "AlbumId", "ArtistId", "Duration", "Genre", "ReleaseDate", "Title", "Url" },
-                values: new object[] { 1, 1, 1, 120, 0, new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Song One", "http://example.com/song1.mp3" });
+                columns: new[] { "SongId", "AlbumId", "ArtistId", "Duration", "Genre", "ImageUrl", "ReleaseDate", "Title", "Url" },
+                values: new object[] { 1, 1, 1, 120, 0, "https://some-url", new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Song One", "http://example.com/song1.mp3" });
 
             migrationBuilder.InsertData(
                 table: "Favorites",
@@ -250,6 +304,12 @@ namespace MusicApplicationAPI.Migrations
                 name: "IX_Albums_ArtistId",
                 table: "Albums",
                 column: "ArtistId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmailVerifications_UserId",
+                table: "EmailVerifications",
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Favorites_PlaylistId",
@@ -282,6 +342,12 @@ namespace MusicApplicationAPI.Migrations
                 column: "SongId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PremiumUsers_UserId",
+                table: "PremiumUsers",
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Ratings_SongId",
                 table: "Ratings",
                 column: "SongId");
@@ -311,10 +377,16 @@ namespace MusicApplicationAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "EmailVerifications");
+
+            migrationBuilder.DropTable(
                 name: "Favorites");
 
             migrationBuilder.DropTable(
                 name: "PlaylistSongs");
+
+            migrationBuilder.DropTable(
+                name: "PremiumUsers");
 
             migrationBuilder.DropTable(
                 name: "Ratings");

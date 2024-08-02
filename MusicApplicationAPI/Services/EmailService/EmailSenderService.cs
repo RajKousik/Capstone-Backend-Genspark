@@ -1,4 +1,6 @@
-﻿using MusicApplicationAPI.Exceptions.CommonExceptions;
+﻿using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using MusicApplicationAPI.Exceptions.CommonExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using System.Net;
 using System.Net.Mail;
@@ -23,9 +25,17 @@ namespace MusicApplicationAPI.Services.EmailService
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var emailSettings = _configuration.GetSection("Email");
-            var useremail = emailSettings["mail"];
-            var password = emailSettings["password"];
+            var keyVaultName = "VibeVaultKeySecrets";
+            var kvUri = $"https://{keyVaultName}.vault.azure.net";
+            var keyvaultclient = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
+            var secretEmail = await keyvaultclient.GetSecretAsync("VibeVaultEmail");
+            var useremail = secretEmail.Value.Value;
+            var secretPassword = await keyvaultclient.GetSecretAsync("VibeVaultEmailPassword");
+            var password = secretPassword.Value.Value;
+
+            //var emailSettings = _configuration.GetSection("Email");
+            //var useremail = emailSettings["mail"];
+            //var password = emailSettings["password"];
 
             var client = new SmtpClient("smtp.gmail.com")
             {

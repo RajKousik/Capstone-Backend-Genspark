@@ -12,8 +12,8 @@ using MusicApplicationAPI.Contexts;
 namespace MusicApplicationAPI.Migrations
 {
     [DbContext(typeof(MusicManagementContext))]
-    [Migration("20240725174536_DeleteBehaviorUpdated")]
-    partial class DeleteBehaviorUpdated
+    [Migration("20240802104149_AzureInitialMigration")]
+    partial class AzureInitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -76,6 +76,11 @@ namespace MusicApplicationAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -84,6 +89,20 @@ namespace MusicApplicationAPI.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<byte[]>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PasswordHashKey")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ArtistId");
 
@@ -94,9 +113,40 @@ namespace MusicApplicationAPI.Migrations
                         {
                             ArtistId = 1,
                             Bio = "Bio of Artist One",
+                            Email = "artist1@gmail.com",
                             ImageUrl = "http://example.com/artist1.jpg",
-                            Name = "Artist One"
+                            Name = "Artist One",
+                            PasswordHash = new byte[] { 245, 17, 219, 213, 55, 33, 158, 50, 138, 218, 16, 45, 178, 59, 17, 199, 85, 237, 44, 50, 37, 97, 118, 176, 217, 237, 106, 162, 86, 72, 178, 48, 176, 40, 205, 227, 247, 52, 35, 15, 114, 156, 243, 145, 151, 144, 233, 145, 231, 101, 254, 17, 221, 205, 61, 194, 212, 72, 248, 95, 150, 87, 76, 45 },
+                            PasswordHashKey = new byte[] { 248, 61, 181, 152, 250, 160, 207, 242, 60, 129, 9, 113, 226, 195, 212, 204, 242, 124, 15, 144, 233, 137, 116, 41, 217, 101, 5, 104, 164, 156, 199, 56, 137, 20, 7, 188, 255, 87, 211, 130, 182, 123, 39, 188, 70, 55, 122, 44, 156, 153, 71, 215, 208, 204, 78, 92, 200, 66, 55, 160, 108, 59, 70, 18, 102, 124, 73, 164, 46, 28, 87, 69, 210, 191, 115, 38, 134, 22, 201, 30, 128, 219, 100, 130, 1, 245, 196, 246, 120, 36, 123, 201, 22, 52, 238, 123, 100, 250, 200, 206, 36, 220, 83, 193, 97, 51, 76, 171, 130, 123, 178, 137, 128, 210, 230, 248, 237, 152, 229, 60, 37, 231, 64, 80, 138, 181, 66, 84 },
+                            Role = 4,
+                            Status = "Active"
                         });
+                });
+
+            modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.EmailVerification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VerificationCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("EmailVerifications");
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.Favorite", b =>
@@ -143,6 +193,10 @@ namespace MusicApplicationAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PlaylistId"), 1L, 1);
 
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsPublic")
                         .HasColumnType("bit");
 
@@ -164,6 +218,7 @@ namespace MusicApplicationAPI.Migrations
                         new
                         {
                             PlaylistId = 1,
+                            ImageUrl = "https://some-url",
                             IsPublic = true,
                             Name = "Playlist One",
                             UserId = 102
@@ -199,6 +254,40 @@ namespace MusicApplicationAPI.Migrations
                             PlaylistId = 1,
                             SongId = 1
                         });
+                });
+
+            modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.PremiumUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastNotifiedOneHourBefore")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastNotifiedTwoDaysBefore")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("Money")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("PremiumUsers");
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.Rating", b =>
@@ -256,6 +345,10 @@ namespace MusicApplicationAPI.Migrations
                     b.Property<int>("Genre")
                         .HasColumnType("int");
 
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
@@ -284,6 +377,7 @@ namespace MusicApplicationAPI.Migrations
                             ArtistId = 1,
                             Duration = 120,
                             Genre = 0,
+                            ImageUrl = "https://some-url",
                             ReleaseDate = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Title = "Song One",
                             Url = "http://example.com/song1.mp3"
@@ -314,8 +408,15 @@ namespace MusicApplicationAPI.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Role")
                         .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -335,8 +436,9 @@ namespace MusicApplicationAPI.Migrations
                             UserId = 101,
                             DOB = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "kousik@gmail.com",
-                            PasswordHash = new byte[] { 206, 113, 135, 112, 226, 235, 252, 195, 6, 214, 192, 90, 243, 106, 247, 70, 116, 145, 29, 66, 79, 99, 53, 143, 151, 251, 127, 44, 217, 68, 61, 183, 176, 163, 198, 251, 171, 105, 252, 251, 190, 188, 215, 79, 153, 85, 220, 102, 239, 211, 92, 92, 240, 125, 132, 153, 75, 159, 89, 223, 103, 165, 161, 40 },
-                            PasswordHashKey = new byte[] { 141, 171, 239, 157, 159, 70, 29, 56, 137, 248, 45, 90, 135, 14, 174, 131, 192, 147, 81, 109, 187, 159, 134, 189, 227, 233, 102, 174, 200, 51, 50, 202, 161, 173, 41, 166, 96, 154, 116, 47, 86, 126, 217, 214, 185, 198, 41, 122, 241, 129, 139, 251, 123, 207, 255, 254, 121, 224, 22, 136, 126, 251, 55, 133, 168, 9, 107, 22, 25, 226, 113, 203, 216, 215, 168, 127, 165, 97, 103, 148, 172, 104, 55, 176, 145, 66, 247, 60, 138, 109, 134, 93, 249, 24, 22, 6, 90, 55, 113, 215, 114, 187, 162, 37, 101, 76, 243, 129, 58, 142, 105, 144, 25, 226, 18, 13, 241, 236, 197, 0, 81, 32, 232, 12, 105, 184, 134, 223 },
+                            PasswordHash = new byte[] { 113, 173, 78, 250, 19, 72, 240, 152, 38, 186, 145, 224, 77, 83, 216, 130, 114, 189, 144, 209, 228, 202, 89, 2, 245, 222, 168, 166, 202, 57, 115, 177, 5, 216, 231, 8, 42, 159, 80, 128, 66, 96, 160, 154, 149, 158, 112, 209, 138, 74, 208, 134, 23, 139, 195, 77, 59, 182, 198, 58, 128, 58, 197, 192 },
+                            PasswordHashKey = new byte[] { 248, 61, 181, 152, 250, 160, 207, 242, 60, 129, 9, 113, 226, 195, 212, 204, 242, 124, 15, 144, 233, 137, 116, 41, 217, 101, 5, 104, 164, 156, 199, 56, 137, 20, 7, 188, 255, 87, 211, 130, 182, 123, 39, 188, 70, 55, 122, 44, 156, 153, 71, 215, 208, 204, 78, 92, 200, 66, 55, 160, 108, 59, 70, 18, 102, 124, 73, 164, 46, 28, 87, 69, 210, 191, 115, 38, 134, 22, 201, 30, 128, 219, 100, 130, 1, 245, 196, 246, 120, 36, 123, 201, 22, 52, 238, 123, 100, 250, 200, 206, 36, 220, 83, 193, 97, 51, 76, 171, 130, 123, 178, 137, 128, 210, 230, 248, 237, 152, 229, 60, 37, 231, 64, 80, 138, 181, 66, 84 },
+                            Phone = "9790852900",
                             Role = 1,
                             Username = "Kousik Raj"
                         },
@@ -345,8 +447,9 @@ namespace MusicApplicationAPI.Migrations
                             UserId = 102,
                             DOB = new DateTime(2003, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "mathew@gmail.com",
-                            PasswordHash = new byte[] { 35, 228, 133, 251, 230, 61, 64, 136, 90, 235, 24, 241, 91, 243, 69, 24, 45, 249, 146, 143, 29, 5, 215, 199, 11, 142, 183, 40, 84, 240, 70, 91, 68, 209, 233, 150, 201, 93, 75, 67, 121, 71, 178, 76, 252, 102, 101, 107, 36, 35, 62, 30, 178, 149, 127, 46, 76, 176, 48, 239, 149, 24, 25, 156 },
-                            PasswordHashKey = new byte[] { 141, 171, 239, 157, 159, 70, 29, 56, 137, 248, 45, 90, 135, 14, 174, 131, 192, 147, 81, 109, 187, 159, 134, 189, 227, 233, 102, 174, 200, 51, 50, 202, 161, 173, 41, 166, 96, 154, 116, 47, 86, 126, 217, 214, 185, 198, 41, 122, 241, 129, 139, 251, 123, 207, 255, 254, 121, 224, 22, 136, 126, 251, 55, 133, 168, 9, 107, 22, 25, 226, 113, 203, 216, 215, 168, 127, 165, 97, 103, 148, 172, 104, 55, 176, 145, 66, 247, 60, 138, 109, 134, 93, 249, 24, 22, 6, 90, 55, 113, 215, 114, 187, 162, 37, 101, 76, 243, 129, 58, 142, 105, 144, 25, 226, 18, 13, 241, 236, 197, 0, 81, 32, 232, 12, 105, 184, 134, 223 },
+                            PasswordHash = new byte[] { 249, 172, 48, 217, 224, 72, 242, 138, 29, 70, 26, 250, 225, 253, 52, 76, 203, 106, 121, 118, 196, 208, 51, 115, 75, 188, 35, 180, 54, 236, 148, 164, 100, 118, 127, 105, 115, 160, 94, 103, 51, 202, 232, 202, 113, 62, 188, 207, 139, 183, 130, 122, 147, 108, 3, 73, 85, 51, 3, 54, 182, 226, 98, 78 },
+                            PasswordHashKey = new byte[] { 248, 61, 181, 152, 250, 160, 207, 242, 60, 129, 9, 113, 226, 195, 212, 204, 242, 124, 15, 144, 233, 137, 116, 41, 217, 101, 5, 104, 164, 156, 199, 56, 137, 20, 7, 188, 255, 87, 211, 130, 182, 123, 39, 188, 70, 55, 122, 44, 156, 153, 71, 215, 208, 204, 78, 92, 200, 66, 55, 160, 108, 59, 70, 18, 102, 124, 73, 164, 46, 28, 87, 69, 210, 191, 115, 38, 134, 22, 201, 30, 128, 219, 100, 130, 1, 245, 196, 246, 120, 36, 123, 201, 22, 52, 238, 123, 100, 250, 200, 206, 36, 220, 83, 193, 97, 51, 76, 171, 130, 123, 178, 137, 128, 210, 230, 248, 237, 152, 229, 60, 37, 231, 64, 80, 138, 181, 66, 84 },
+                            Phone = "9012382181",
                             Role = 2,
                             Username = "Mathew"
                         });
@@ -361,6 +464,17 @@ namespace MusicApplicationAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Artist");
+                });
+
+            modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.EmailVerification", b =>
+                {
+                    b.HasOne("MusicApplicationAPI.Models.DbModels.User", "User")
+                        .WithOne("EmailVerification")
+                        .HasForeignKey("MusicApplicationAPI.Models.DbModels.EmailVerification", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.Favorite", b =>
@@ -416,6 +530,17 @@ namespace MusicApplicationAPI.Migrations
                     b.Navigation("Playlist");
 
                     b.Navigation("Song");
+                });
+
+            modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.PremiumUser", b =>
+                {
+                    b.HasOne("MusicApplicationAPI.Models.DbModels.User", "User")
+                        .WithOne()
+                        .HasForeignKey("MusicApplicationAPI.Models.DbModels.PremiumUser", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.Rating", b =>
@@ -484,6 +609,8 @@ namespace MusicApplicationAPI.Migrations
 
             modelBuilder.Entity("MusicApplicationAPI.Models.DbModels.User", b =>
                 {
+                    b.Navigation("EmailVerification");
+
                     b.Navigation("Favorites");
 
                     b.Navigation("Playlists");
