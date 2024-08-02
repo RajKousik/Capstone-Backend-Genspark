@@ -8,6 +8,8 @@ namespace MusicApplicationAPI.Interfaces.Service
     {
         Task<AlbumReturnDTO> AddAlbum(AlbumAddDTO albumAddDTO);
         Task<AlbumReturnDTO> UpdateAlbum(int albumId, AlbumUpdateDTO albumUpdateDTO);
+
+        Task<bool> DeleteRangeAlbums(IList<int> ids);
         Task<AlbumReturnDTO> GetAlbumById(int albumId);
         Task<IEnumerable<AlbumReturnDTO>> GetAllAlbums();
         Task<IEnumerable<AlbumReturnDTO>> GetAlbumsByArtistId(int artistId);

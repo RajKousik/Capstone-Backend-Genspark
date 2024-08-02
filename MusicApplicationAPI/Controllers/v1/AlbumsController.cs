@@ -6,6 +6,7 @@ using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DTOs.AlbumDTO;
 using MusicApplicationAPI.Models.ErrorModels;
+using MusicApplicationAPI.Services.SongService;
 using WatchDog;
 
 namespace MusicApplicationAPI.Controllers.v1
@@ -103,6 +104,25 @@ namespace MusicApplicationAPI.Controllers.v1
                 WatchLogger.Log(ex.Message);
                 _logger.LogError(ex, ex.Message);
                 return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+
+
+        [Authorize]
+        [HttpDelete("range")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<bool>> DeleteAlbum([FromBody] IList<int> albumIds)
+        {
+            try
+            {
+                var result = await _albumService.DeleteRangeAlbums(albumIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
             }
         }
 

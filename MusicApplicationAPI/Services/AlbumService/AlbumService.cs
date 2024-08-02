@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MusicApplicationAPI.Exceptions.AlbumExceptions;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
+using MusicApplicationAPI.Exceptions.SongExceptions;
 using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DbModels;
@@ -59,6 +60,27 @@ public class AlbumService : IAlbumService
         {
             _logger.LogError(ex, "Error adding new album.");
             throw;
+        }
+    }
+
+
+
+    public async Task<bool> DeleteRangeAlbums(IList<int> ids)
+    {
+        try
+        {
+            await _albumRepository.DeleteRange(ids);
+            return true;
+        }
+        catch (NoAlbumsExistsException ex)
+        {
+            _logger.LogError(ex.Message);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical("Unable to delete albums" + ex.Message);
+            throw new NoSuchAlbumExistException("Unable to delete albums. " + ex.Message);
         }
     }
 

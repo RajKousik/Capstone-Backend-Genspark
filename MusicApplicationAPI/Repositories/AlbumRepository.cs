@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MusicApplicationAPI.Contexts;
 using MusicApplicationAPI.Exceptions.AlbumExceptions;
+using MusicApplicationAPI.Exceptions.SongExceptions;
 using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Models.DbModels;
 
@@ -96,6 +97,31 @@ namespace MusicApplicationAPI.Repositories
                 ? throw new UnableToUpdateAlbumException("Something went wrong while updating the album")
                 : album;
         }
+
+
+        public async Task<bool> DeleteRange(IList<int> key)
+        {
+            IList<Album> albums = new List<Album>();
+            foreach (var id in key)
+            {
+                var result = await GetById(id);
+                albums.Add(result);
+            }
+            if (albums.Count() <= 0)
+            {
+                throw new NoAlbumsExistsException("No albums found for the given constraint");
+            }
+            _context.RemoveRange(albums);
+            int noOfRowsAffected = await _context.SaveChangesAsync();
+
+            if (noOfRowsAffected <= 0)
+            {
+                throw new UnableToDeleteAlbumException("Unable to delete the set of albums");
+            }
+            return true;
+        }
+
+
         #endregion
     }
 }
