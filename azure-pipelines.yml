@@ -1,0 +1,34 @@
+trigger:
+- master
+
+pool:
+ name: presidio-pc
+ clean: true
+variables:
+  # Container registry service connection established during pipeline creation
+  imageRepository: 'vibevault-backend'
+  containerRegistry: 'vibevault.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: 'latest'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+steps:
+
+# - task: DotNetCoreCLI@2
+#   inputs:
+#     command: 'build'
+#     projects: 'MusicApplicationAPI'
+    
+- script: docker build -t $(containerRegistry)/$(imageRepository) -f $(dockerfilePath) .
+  displayName: 'Build Image'
+  
+- script: docker push $(containerRegistry)/$(imageRepository)
+  displayName: 'Push Image'
+
+- script: az webapp restart --resource-group vibevault_group --name vibevault
+  displayName: 'Web App Restart'
+  
+
+
