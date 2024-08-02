@@ -16,12 +16,12 @@ variables:
 
 steps:
 
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    projects: 'MusicApplicationAPI'
+# - task: DotNetCoreCLI@2
+#   inputs:
+#     command: 'build'
+#     projects: 'MusicApplicationAPI'
     
-- script: docker build -t $(containerRegistry)/$(imageRepository)
+- script: docker build -t $(containerRegistry)/$(imageRepository) -f $(dockerfilePath) .
   displayName: 'Build Image'
   
 - script: docker push $(containerRegistry)/$(imageRepository)
