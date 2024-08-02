@@ -49,7 +49,7 @@ namespace MusicApplicationAPI
             {
                 opts.AddPolicy("MyAllowSpecificOrigins", options =>
                 {
-                    options.WithOrigins("https://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                    options.WithOrigins("https://localhost:3000","https://calm-mud-018043c1e.5.azurestaticapps.net").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
                 });
             });
             #endregion
