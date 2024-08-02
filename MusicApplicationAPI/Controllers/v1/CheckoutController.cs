@@ -19,7 +19,7 @@ namespace MusicApplicationAPI.Controllers.v1
         [HttpPost("create-checkout-session")]
         public async Task<IActionResult> CreateCheckoutSession([FromBody] CheckoutRequest request)
         {
-            var session = await _stripeService.CreateCheckoutSession(request.Amount, request.Currency, request.userId, request.durationInDays);
+            var session = await _stripeService.CreateCheckoutSession(request.Amount, request.Currency, request.userId, request.durationInDays, request.email);
             return Ok(new { sessionId = session});
         }
     }

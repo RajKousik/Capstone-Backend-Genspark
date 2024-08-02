@@ -19,7 +19,7 @@ namespace MusicApplicationAPI.Services
             StripeConfiguration.ApiKey = _secretKey;
         }
 
-        public async Task<String> CreateCheckoutSession(decimal amount, string currency, int userId, int durationInDays)
+        public async Task<String> CreateCheckoutSession(decimal amount, string currency, int userId, int durationInDays, string email)
         {
             var options = new SessionCreateOptions
             {
@@ -49,6 +49,7 @@ namespace MusicApplicationAPI.Services
                 },
                 SuccessUrl = _successUrl, // Replace with your success URL
                 CancelUrl = _cancelUrl, // Replace with your cancel URL
+                CustomerEmail = email,
             };
 
             var service = new SessionService();

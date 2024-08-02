@@ -8,5 +8,7 @@
         public int userId { get; set; }
 
         public int durationInDays { get; set; }
+
+        public string email { get; set; }
     }
 }
