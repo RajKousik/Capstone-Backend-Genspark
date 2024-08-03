@@ -3,9 +3,11 @@ using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Repositories;
 using MusicApplicationAPI.Services.EmailService;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MusicApplicationAPI.Services
 {
+    [ExcludeFromCodeCoverage]
     public class SubscriptionMailService
     {
         private readonly IPremiumUserRepository _premiumUserRepository;

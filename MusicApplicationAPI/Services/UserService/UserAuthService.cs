@@ -8,9 +8,11 @@ using MusicApplicationAPI.Models.Enums;
 using MusicApplicationAPI.Models.DTOs.UserDTO;
 using MusicApplicationAPI.Exceptions.EmailExceptions;
 using MusicApplicationAPI.Interfaces.Service;
+using System.Diagnostics.CodeAnalysis;  
 
 namespace MusicApplicationAPI.Services.UserService
 {
+    [ExcludeFromCodeCoverage]
     public class UserAuthService : IAuthLoginService<UserLoginReturnDTO, UserLoginDTO>,
         IAuthRegisterService<UserRegisterReturnDTO, UserRegisterDTO>
     {

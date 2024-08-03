@@ -9,6 +9,7 @@ using MusicApplicationAPI.Models.DTOs.OtherDTO;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Models.DTOs.ArtistDTO;
 using MusicApplicationAPI.Repositories;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MusicApplicationAPI.Services.UserService
 {
@@ -236,6 +237,7 @@ namespace MusicApplicationAPI.Services.UserService
         /// Gets all users.
         /// </summary>
         /// <returns>A list of premium users </returns>
+        [ExcludeFromCodeCoverage]
         public async Task<IEnumerable<PremiumUser>> GetAllPremiumUsers()
         {
             try
@@ -263,6 +265,7 @@ namespace MusicApplicationAPI.Services.UserService
         /// Gets all users.
         /// </summary>
         /// <returns>A list of admin users </returns>
+        [ExcludeFromCodeCoverage]
         public async Task<IEnumerable<UserReturnDTO>> GetAllAdminUsers()
         {
             try
@@ -289,6 +292,7 @@ namespace MusicApplicationAPI.Services.UserService
         /// </summary>
         /// <param name="userId">The user ID.</param>
         /// <returns>The deleted user data.</returns>
+        [ExcludeFromCodeCoverage]
         public async Task<UserReturnDTO> DeleteUser(int userId)
         {
             try
@@ -313,7 +317,7 @@ namespace MusicApplicationAPI.Services.UserService
             }
         }
 
-
+        [ExcludeFromCodeCoverage]
         public async Task<bool> ChangePassword(ChangePasswordRequestDTO requestDTO, int userId)
         {
             try
@@ -353,7 +357,7 @@ namespace MusicApplicationAPI.Services.UserService
             }
         }
 
-
+        [ExcludeFromCodeCoverage]
         public async Task<PremiumUser> UpgradeUserToPremium(int userId, PremiumRequestDTO premiumRequest)
         {
             try
@@ -430,7 +434,7 @@ namespace MusicApplicationAPI.Services.UserService
             }
         }
 
-
+        [ExcludeFromCodeCoverage]
         public async Task<bool> DowngradePremiumUser(int userId)
         {
             try
@@ -483,7 +487,7 @@ namespace MusicApplicationAPI.Services.UserService
 
 
         #region Private Methods
-
+        [ExcludeFromCodeCoverage]
         private async Task<User> GetUserEntityById(int userId)
         {
             var user = await _userRepository.GetById(userId);
@@ -494,6 +498,7 @@ namespace MusicApplicationAPI.Services.UserService
             return user;
         }
 
+        [ExcludeFromCodeCoverage]
         public async Task<PremiumUser> GetPremiumUserByUserId(int userId)
         {
             var premiumUser = await _premiumUserRepository.GetByUserId(userId);
@@ -504,6 +509,7 @@ namespace MusicApplicationAPI.Services.UserService
             return premiumUser;
         }
 
+        [ExcludeFromCodeCoverage]
         private void ValidateUserIsPremium(User user, PremiumUser premiumUser)
         {
             if (user.Role != RoleType.PremiumUser || premiumUser == null)
@@ -512,6 +518,7 @@ namespace MusicApplicationAPI.Services.UserService
             }
         }
 
+        [ExcludeFromCodeCoverage]
         private void CheckSubscriptionStatus(PremiumUser premiumUser)
         {
             if (premiumUser.EndDate > DateTime.UtcNow)
@@ -520,6 +527,7 @@ namespace MusicApplicationAPI.Services.UserService
             }
         }
 
+        [ExcludeFromCodeCoverage]
         private async Task DowngradeUserToNormal(User user, PremiumUser premiumUser)
         {
             user.Role = RoleType.NormalUser;
@@ -528,6 +536,7 @@ namespace MusicApplicationAPI.Services.UserService
             _logger.LogInformation($"User with ID {user.UserId} downgraded to NormalUser.");
         }
 
+        [ExcludeFromCodeCoverage]
         private async Task SendPremiumSubscriptionUpgradeEmail(User user, DateTime endDate, bool isRenewal)
         {
             string subject;

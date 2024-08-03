@@ -4,10 +4,12 @@ using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Interfaces.Repository;
 using MusicApplicationAPI.Interfaces.Service;
 using MusicApplicationAPI.Models.DbModels;
+using System.Diagnostics.CodeAnalysis;
 using WatchDog;
 
 namespace MusicApplicationAPI.Services.EmailService
 {
+    [ExcludeFromCodeCoverage]
     public class EmailVerificationService : IEmailVerificationService
     {
         private readonly IEmailVerificationRepository _emailVerificationRepository;

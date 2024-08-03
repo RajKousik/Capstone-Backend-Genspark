@@ -2,9 +2,11 @@
 using Stripe.Checkout;
 using Stripe;
 using MusicApplicationAPI.Models.DbModels;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MusicApplicationAPI.Services
 {
+    [ExcludeFromCodeCoverage]
     public class StripeService
     {
         private readonly string _secretKey;

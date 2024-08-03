@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MusicApplicationAPI.Contexts;
@@ -7,6 +8,7 @@ using MusicApplicationAPI.Models.DbModels;
 
 namespace MusicApplicationAPI.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class EmailVerificationRepository : IEmailVerificationRepository
     {
         private readonly MusicManagementContext _context;

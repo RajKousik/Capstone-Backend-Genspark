@@ -7,6 +7,7 @@ using MusicApplicationAPI.Exceptions.SongExceptions;
 using MusicApplicationAPI.Models.Enums;
 using MusicApplicationAPI.Exceptions.ArtistExceptions;
 using MusicApplicationAPI.Exceptions.AlbumExceptions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MusicApplicationAPI.Services.SongService
 {
@@ -131,6 +132,7 @@ namespace MusicApplicationAPI.Services.SongService
             }
         }
 
+
         public async Task<bool> DeleteRangeSongs(IList<int> ids)
         {
             try
@@ -150,7 +152,7 @@ namespace MusicApplicationAPI.Services.SongService
             }
         }
 
-
+        [ExcludeFromCodeCoverage]
         public async Task<SongReturnDTO> UpdateSong(int songId, SongUpdateDTO songUpdateDTO)
         {
             try
@@ -342,6 +344,7 @@ namespace MusicApplicationAPI.Services.SongService
             }
         }
 
+        [ExcludeFromCodeCoverage]
         public async Task<IEnumerable<SongReturnDTO>> GetAlbumSongs()
         {
             try

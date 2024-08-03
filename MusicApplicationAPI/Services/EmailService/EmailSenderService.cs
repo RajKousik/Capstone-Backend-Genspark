@@ -2,11 +2,13 @@
 using Azure.Security.KeyVault.Secrets;
 using MusicApplicationAPI.Exceptions.CommonExceptions;
 using MusicApplicationAPI.Interfaces.Service;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Mail;
 
 namespace MusicApplicationAPI.Services.EmailService
 {
+    [ExcludeFromCodeCoverage]
     public class EmailSenderService : IEmailSender
     {
         private readonly IConfiguration _configuration;

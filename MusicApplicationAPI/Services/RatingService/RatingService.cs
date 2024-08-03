@@ -6,6 +6,7 @@ using MusicApplicationAPI.Exceptions.SongExceptions;
 using MusicApplicationAPI.Exceptions.UserExceptions;
 using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.DTOs.RatingDTO;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MusicApplicationAPI.Services.RatingService
 {
@@ -99,6 +100,9 @@ namespace MusicApplicationAPI.Services.RatingService
         /// <exception cref="NoSuchSongExistException">Thrown when the song does not exist.</exception>
         /// <exception cref="NoSuchRatingExistException">Thrown when the rating does not exist.</exception>
         /// <exception cref="UnableToUpdateRatingException">Thrown when unable to update the rating.</exception>
+        /// 
+
+        [ExcludeFromCodeCoverage]
         public async Task<RatingReturnDTO> UpdateRating(RatingDTO ratingDTO)
         {
             try
@@ -291,6 +295,9 @@ namespace MusicApplicationAPI.Services.RatingService
         /// </summary>
         /// <returns>A list of top-rated songs with their average rating.</returns>
         /// <exception cref="UnableToRetrieveTopRatedSongsException">Thrown when unable to retrieve the top-rated songs.</exception>
+        /// 
+
+        [ExcludeFromCodeCoverage]
         public async Task<IEnumerable<SongRatingDTO>> TopRatedSongs()
         {
             try

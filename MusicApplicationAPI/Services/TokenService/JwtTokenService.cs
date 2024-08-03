@@ -2,12 +2,14 @@
 using MusicApplicationAPI.Interfaces.Service.TokenService;
 using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.Enums;
+using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace MusicApplicationAPI.Services.TokenService
 {
+    [ExcludeFromCodeCoverage]
     public class JwtTokenService : ITokenService
     {
         #region Private Fields

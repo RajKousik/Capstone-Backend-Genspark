@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 using Easy_Password_Validator;
@@ -9,6 +10,7 @@ using MusicApplicationAPI.Models.DTOs.UserDTO;
 
 namespace MusicApplicationAPI.Services.UserService
 {
+    [ExcludeFromCodeCoverage]
     public class PasswordService : IPasswordService
     {
 

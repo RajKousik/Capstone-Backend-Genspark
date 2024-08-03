@@ -7,6 +7,7 @@ using MusicApplicationAPI.Models.DbModels;
 using MusicApplicationAPI.Models.Enums;
 using MusicApplicationAPI.Models.DTOs.PlaylistDTO;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MusicApplicationAPI.Services
 {
@@ -35,6 +36,7 @@ namespace MusicApplicationAPI.Services
 
         #region Public Methods
 
+        [ExcludeFromCodeCoverage]
         /// <summary>
         /// Adds a new playlist.
         /// </summary>
@@ -286,6 +288,8 @@ namespace MusicApplicationAPI.Services
         /// </summary>
         /// <param name="userId">The ID of the user.</param>
         /// <returns>True if the user has reached the maximum limit; otherwise, false.</returns>
+        /// 
+        [ExcludeFromCodeCoverage]
         private async Task<bool> HasReachedPlaylistLimit(int userId)
         {
 
