@@ -82,7 +82,7 @@ namespace MusicApplicationAPI.Services.EmailService
                                     <p>Please enter the following code to complete your login:</p>
                                     <div class='verification-code'>{verificationCode}</div>
                                     <p>This code will expire in 30 minutes. If you didn't request this code, you can safely ignore this email. Someone else might have typed your email address by mistake.</p>
-                                    <p>You can even click this <a href='https://localhost:3000/verify-code?userId={user.UserId}'>link</a> to verify</p>
+                                    <p>You can even click this <a href='https://calm-mud-018043c1e.5.azurestaticapps.net/verify-code?userId={user.UserId}'>link</a> to verify</p>
                                     <p class='info-text'>For your security, never share your verification code with anyone. If you encounter any issues, you can request a new code.</p>
                                     <p>Need help? Visit our <a href='https://example.com/support'>Support Center</a> for assistance.</p>
                                 </div>
