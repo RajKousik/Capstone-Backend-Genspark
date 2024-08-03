@@ -142,6 +142,7 @@ namespace MusicApplicationAPI.Services.UserService
                     DOB = dateOfBirth,
                     Role = RoleType.NormalUser,
                     Status = "Not Verified",
+                    Phone = userRegisterDTO.Phone,
                 };
 
                 user.PasswordHash = _passwordService.HashPassword(userRegisterDTO.Password, out byte[] key);
