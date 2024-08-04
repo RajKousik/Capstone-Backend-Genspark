@@ -419,7 +419,8 @@ namespace MusicApplicationAPI.Services
                 ArtistId = artist.ArtistId,
                 Token = _tokenService.GenerateArtistToken(artist),
                 Name = artist.Name,
-                Role = artist.Role
+                Role = artist.Role,
+                ImageUrl = artist.ImageUrl
             };
         }
 

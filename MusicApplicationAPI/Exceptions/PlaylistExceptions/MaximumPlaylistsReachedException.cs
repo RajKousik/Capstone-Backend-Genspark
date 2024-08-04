@@ -9,7 +9,7 @@ namespace MusicApplicationAPI.Exceptions.PlaylistExceptions
 
         public MaximumPlaylistsReachedException()
         {
-            msg = "Normal user has reached the maximum number of playlists.";
+            msg = "Maximum Number of playlists reached! Upgrade to premium!";
         }
 
         public MaximumPlaylistsReachedException(string message) : base(message)

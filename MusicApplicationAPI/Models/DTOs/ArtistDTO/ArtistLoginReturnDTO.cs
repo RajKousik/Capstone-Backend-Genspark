@@ -12,5 +12,7 @@ namespace MusicApplicationAPI.Models.DTOs.ArtistDTO
 
         public string Token { get; set; }
         public RoleType Role { get; set; }
+
+        public string ImageUrl { get; set; }    
     }
 }

@@ -380,7 +380,9 @@ namespace MusicApplicationAPI.Services.UserService
                         UserId = userId,
                         StartDate = DateTime.UtcNow,
                         EndDate = newEndDate,
-                        Money = premiumRequest.Money
+                        Money = premiumRequest.Money,
+                        LastNotifiedTwoDaysBefore = null,
+                        LastNotifiedOneHourBefore = null,
                     };
 
                     var addedPremiumUser = await _premiumUserRepository.Add(premiumUser);
