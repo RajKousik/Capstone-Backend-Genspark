@@ -51,7 +51,6 @@ namespace MusicApplicationAPI.Services
                 CancelUrl = _cancelUrl, // Replace with your cancel URL
                 CustomerEmail = email,
             };
-
             var service = new SessionService();
             Session session = await service.CreateAsync(options);
             return session.Id;
