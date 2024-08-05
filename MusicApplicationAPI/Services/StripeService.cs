@@ -45,10 +45,10 @@ namespace MusicApplicationAPI.Services
                 Metadata = new Dictionary<string, string>()
                 {
                     { "user_id", userId.ToString() },
-                    { "duration_in_days", durationInDays.ToString() } // Add durationInDays as metadata
+                    { "duration_in_days", durationInDays.ToString() } // durationInDays as metadata
                 },
-                SuccessUrl = _successUrl, // Replace with your success URL
-                CancelUrl = _cancelUrl, // Replace with your cancel URL
+                SuccessUrl = _successUrl, 
+                CancelUrl = _cancelUrl, 
                 CustomerEmail = email,
             };
             var service = new SessionService();

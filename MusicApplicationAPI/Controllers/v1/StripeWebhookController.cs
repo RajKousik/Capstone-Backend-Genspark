@@ -48,9 +48,9 @@ namespace MusicApplicationAPI.Controllers.v1
                                 int.TryParse(durationInDaysStr, out int durationInDays))
                             {
 
-                                    // Optional: Convert amount received to Money if needed
-                                    double? money = (session.AmountTotal / 100.0); // Assuming amount total is in cents
-                                                                                   //if(moen)
+                                    // Converting amount received to Money 
+                                    double? money = (session.AmountTotal / 100.0); // amount total is in cents
+                                                                                   
                                 
                                 var premiumRequest = new PremiumRequestDTO
                                 {
