@@ -27,6 +27,17 @@
 - **Logging and Monitoring**: Watchdog for detailed logs
 - **Email Notifications**: Automated email system for notifications and updates
 
+
+## Testing
+
+### NUNIT TESTING
+- Tested Services
+- Tested Repositories
+
+![WhatsApp Image 2024-08-03 at 18 03 22_0733e60c](https://github.com/user-attachments/assets/e5652f20-b09d-4093-aba3-b7c8cf86149a)
+
+
+
 ## Project Structure
 
 ```
